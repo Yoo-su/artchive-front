@@ -4,8 +4,8 @@
   - 로그인한 사용자가 /login 페이지 접근 시 /home으로 리디렉션합니다.
   =================================================================
 */
-import { withAuth } from "next-auth/middleware";
 import { NextResponse } from "next/server";
+import { withAuth } from "next-auth/middleware";
 
 export default withAuth(
   // `withAuth`는 인증된 사용자만 접근을 허용하는 미들웨어 함수를 강화합니다.

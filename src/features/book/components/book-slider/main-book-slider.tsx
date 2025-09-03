@@ -1,17 +1,18 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { Swiper, SwiperSlide } from "swiper/react";
-import { EffectCoverflow, Navigation, Autoplay } from "swiper/modules";
-import { ChevronLeft, ChevronRight, BookOpen } from "lucide-react";
+import { BookOpen,ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { useEffect, useRef,useState } from "react";
+import { Autoplay,EffectCoverflow, Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
 
 // Shadcn/ui 컴포넌트
 import { Button } from "@/shared/components/shadcn/button";
+
+import { MAIN_PUBLISHERS } from "../../constants";
 import { useBookListQuery } from "../../queries";
 import { BookSliderSkeleton } from "./skeleton";
-import { MAIN_PUBLISHERS } from "../../constants";
 
 // 슬라이더에 적용할 커스텀 스타일
 const SwiperStyles = () => (

@@ -1,9 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
-import { useInfiniteRelatedPostsQuery } from "../../queries";
-import { RelatedPostsSlider } from "./related-posts-slider";
+
 import {
   Select,
   SelectContent,
@@ -12,6 +10,10 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
+
+import { useInfiniteRelatedPostsQuery } from "../../queries";
+import { RelatedPostsSlider } from "./related-posts-slider";
 
 interface RelatedPostsProps {
   isbn: string;

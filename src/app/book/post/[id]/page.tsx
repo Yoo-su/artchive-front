@@ -1,7 +1,11 @@
 import { DefaultLayout } from "@/layouts/default-layout";
 import { BookPostDetailView } from "@/views/book-post-detail-view";
 
-export default async function Page({ params }: { params: { id: string } }) {
+export default async function Page({
+  params,
+}: {
+  params: Promise<{ id: string }>;
+}) {
   const { id } = await params;
 
   return (

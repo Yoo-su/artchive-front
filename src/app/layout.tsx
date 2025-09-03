@@ -1,5 +1,4 @@
 import "@/styles/globals.css";
-
 import "swiper/css";
 import "swiper/css/scrollbar";
 import "swiper/css/autoplay";
@@ -23,15 +22,18 @@ export const metadata: Metadata = {
 const nanum_gothic = Nanum_Gothic({
   weight: ["400", "700", "800"],
   variable: "--font-nanum-gothic",
+  display: "swap",
+  preload: false,
 });
 
-export const pretendard = localFont({
+const pretendard = localFont({
   src: "../../public/fonts/pretendard/PretendardVariable.woff2",
   variable: "--font-pretendard",
   display: "swap",
+  preload: false,
 });
 
-export default function RootLayout({
+export default function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;

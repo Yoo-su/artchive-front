@@ -1,6 +1,8 @@
 import { create } from "zustand";
-import { User } from "./types";
+
 import { publicAxios } from "@/shared/libs/axios";
+
+import { User } from "./types";
 
 interface AuthState {
   accessToken: string | null;

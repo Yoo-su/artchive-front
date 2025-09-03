@@ -6,11 +6,11 @@
 */
 "use client";
 
-import Link from "next/link";
-import { useAuthStore } from "@/features/auth/store";
-import { signOut, useSession } from "next-auth/react";
 import { LogIn } from "lucide-react";
+import Link from "next/link";
+import { signOut, useSession } from "next-auth/react";
 
+import { useAuthStore } from "@/features/auth/store";
 // Shadcn/ui 컴포넌트 임포트
 import {
   Avatar,

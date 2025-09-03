@@ -1,18 +1,18 @@
 "use client";
 
+import { Heart, PenSquare } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { Heart, PenSquare } from "lucide-react";
-
-import { useBookDetailQuery } from "../../queries"; // ⬅️ 실제 hook 경로로 수정하세요.
+import { useSession } from "next-auth/react";
 
 // Shadcn/ui 컴포넌트
 import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
-import { BookDetailSkeleton } from "./skeleton";
+
+import { useBookDetailQuery } from "../../queries"; // ⬅️ 실제 hook 경로로 수정하세요.
 import { BookDetailError } from "./error";
-import { useSession } from "next-auth/react";
+import { BookDetailSkeleton } from "./skeleton";
 
 export const BookDetail = () => {
   const params = useParams();

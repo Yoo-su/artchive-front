@@ -1,23 +1,25 @@
 "use client";
 
-import { UsedBookPost } from "../../types";
-import { Button } from "@/shared/components/shadcn/button";
+import { Edit, MessageCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
+import Link from "next/link";
+
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
-import { Separator } from "@/shared/components/shadcn/separator";
+import { Button } from "@/shared/components/shadcn/button";
 import {
   Card,
   CardContent,
   CardHeader,
   CardTitle,
 } from "@/shared/components/shadcn/card";
-import { MessageCircle, Edit, Trash2 } from "lucide-react";
+import { Separator } from "@/shared/components/shadcn/separator";
+
+import { UsedBookPost } from "../../types";
 import { PostStatusBadge } from "../common/post-status-badge";
-import Link from "next/link";
 
 interface BookPostActionsProps {
   post: UsedBookPost;

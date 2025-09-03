@@ -1,5 +1,5 @@
-import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { Separator } from "@/shared/components/shadcn/separator";
+import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
 // 로딩 상태를 표시할 스켈레톤 UI
 export const BookDetailSkeleton = () => (

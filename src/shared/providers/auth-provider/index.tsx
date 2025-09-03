@@ -2,6 +2,7 @@
 
 import { useSession } from "next-auth/react";
 import { useEffect } from "react";
+
 import { useAuthStore } from "@/features/auth/store";
 import { FullScreenLoader } from "@/shared/components/full-screen-loader";
 

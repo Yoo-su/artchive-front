@@ -1,11 +1,12 @@
 "use client";
 
+import { Loader2 } from "lucide-react";
 import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
-import { useBookSearchStore } from "../stores/use-book-search-store";
+
 import { useInfiniteBookSearch } from "../../queries";
 import { BookCard } from "../common/book-card";
-import { Loader2 } from "lucide-react";
+import { useBookSearchStore } from "../stores/use-book-search-store";
 
 export const BookSearchResultList = () => {
   const query = useBookSearchStore((state) => state.query);

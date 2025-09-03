@@ -1,7 +1,9 @@
 import Image from "next/image";
 import Link from "next/link";
-import { BookInfo } from "../../types";
+
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
+
+import { BookInfo } from "../../types";
 
 interface BookCardProps {
   book: BookInfo;

@@ -22,7 +22,7 @@ export const useMainArtsQueries = (
   mainArts: { genreCode: Genre; title: string }[]
 ) => {
   return useQueries({
-    queries: mainArts.map(({ genreCode, title }) => ({
+    queries: mainArts.map(({ genreCode }) => ({
       queryKey: QUERY_KEYS.artKeys.list({ genreCode }).queryKey,
       queryFn: async () => {
         const result = await getArtList({ genreCode, rows: "20" });

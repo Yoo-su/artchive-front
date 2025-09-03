@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { useAuthStore } from "@/features/auth/store";
 import { signOut } from "next-auth/react";
+
+import { useAuthStore } from "@/features/auth/store";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 

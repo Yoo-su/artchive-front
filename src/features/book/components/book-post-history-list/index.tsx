@@ -1,6 +1,7 @@
+import { BookX } from "lucide-react";
+
 import { UsedBookPost } from "../../types";
 import { BookPostHistoryItem } from "./item";
-import { BookX } from "lucide-react";
 
 interface BookPostHistoryListProps {
   posts: UsedBookPost[];

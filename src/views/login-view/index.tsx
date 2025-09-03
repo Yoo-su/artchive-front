@@ -1,8 +1,9 @@
 "use client";
 
-import { Logo } from "@/layouts/common/logo";
-import { signIn } from "next-auth/react";
 import Image from "next/image";
+import { signIn } from "next-auth/react";
+
+import { Logo } from "@/layouts/common/logo";
 
 export const LoginView = () => {
   return (

@@ -1,9 +1,11 @@
-import { Swiper, SwiperSlide } from "swiper/react";
-import { Navigation } from "swiper/modules";
 import { ChevronLeft, ChevronRight, Loader2 } from "lucide-react";
+import { Navigation } from "swiper/modules";
+import { Swiper, SwiperSlide } from "swiper/react";
+
+import { Button } from "@/shared/components/shadcn/button";
+
 import { UsedBookPost } from "../../types";
 import { PostCard } from "./post-card";
-import { Button } from "@/shared/components/shadcn/button";
 
 interface RelatedPostsSliderProps {
   posts: UsedBookPost[];

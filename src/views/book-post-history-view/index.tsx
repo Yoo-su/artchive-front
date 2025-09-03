@@ -1,9 +1,10 @@
 "use client";
 
-import { useMyBookPostsQuery } from "@/features/book/queries";
+import { AlertTriangle } from "lucide-react";
+
 import { BookPostHistoryList } from "@/features/book/components/book-post-history-list";
+import { useMyBookPostsQuery } from "@/features/book/queries";
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
-import { AlertTriangle, BookX } from "lucide-react";
 
 export const BookPostHistoryView = () => {
   const { data: posts, isLoading, isError } = useMyBookPostsQuery();

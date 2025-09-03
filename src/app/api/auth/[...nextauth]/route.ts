@@ -1,6 +1,6 @@
 // src/app/api/auth/[...nextauth]/route.ts
 
-import NextAuth, { AuthOptions, Profile, User } from "next-auth";
+import NextAuth, { AuthOptions } from "next-auth";
 import { JWT } from "next-auth/jwt";
 import KakaoProvider from "next-auth/providers/kakao";
 import NaverProvider from "next-auth/providers/naver";
@@ -36,7 +36,7 @@ const authOptions: AuthOptions = {
     // },
 
     // ⭐️ 핵심 로직: 소셜 로그인 성공 후 실행되며, JWT를 생성/업데이트합니다.
-    async jwt({ token, user, account, profile }): Promise<JWT> {
+    async jwt({ token, account, profile }): Promise<JWT> {
       // account와 profile 객체는 "최초 로그인 시"에만 존재합니다.
       if (account && profile) {
         let socialLoginDto: SocialLoginDto | null = null;

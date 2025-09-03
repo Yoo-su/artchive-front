@@ -1,12 +1,14 @@
 import Image from "next/image";
 import Link from "next/link";
-import { UsedBookPost } from "../../types";
-import { Card, CardContent } from "@/shared/components/shadcn/card";
+
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
+import { Card, CardContent } from "@/shared/components/shadcn/card";
+
+import { UsedBookPost } from "../../types";
 import { PostStatusBadge } from "../common/post-status-badge";
 
 interface PostCardProps {

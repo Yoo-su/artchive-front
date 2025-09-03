@@ -1,11 +1,13 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import { Search } from "lucide-react"; // Search 아이콘 임포트
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+
+import { Button } from "@/shared/components/shadcn/button";
+
 import { Logo } from "../common/logo";
 import UserPopover from "./user-popover";
-import { Button } from "@/shared/components/shadcn/button";
-import { Search } from "lucide-react"; // Search 아이콘 임포트
 
 export const DefaultHeader = () => {
   const router = useRouter();

@@ -1,8 +1,9 @@
+import { createQueryKeys } from "@lukemorales/query-key-factory";
+
 import {
   GetBookListParams,
   UseInfiniteRelatedPostsQueryProps,
 } from "@/features/book/types";
-import { createQueryKeys } from "@lukemorales/query-key-factory";
 
 export const bookKeys = createQueryKeys("book", {
   list: (params: GetBookListParams) => [params],

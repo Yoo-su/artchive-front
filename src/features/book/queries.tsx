@@ -1,16 +1,12 @@
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import {
   useInfiniteQuery,
   useMutation,
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import {
-  BookInfo,
-  GetBookListParams,
-  UseInfiniteRelatedPostsQueryProps,
-  UsedBookPost,
-} from "./types";
+
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
+
 import {
   getBookDetail,
   getBookList,
@@ -20,6 +16,12 @@ import {
   updateBookPostStatus,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
+import {
+  BookInfo,
+  GetBookListParams,
+  UsedBookPost,
+  UseInfiniteRelatedPostsQueryProps,
+} from "./types";
 
 export const useBookListQuery = (params: GetBookListParams) => {
   return useQuery({

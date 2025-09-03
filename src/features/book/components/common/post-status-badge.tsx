@@ -1,6 +1,7 @@
 import { Badge } from "@/shared/components/shadcn/badge";
-import { PostStatus } from "../../types";
 import { cn } from "@/shared/utils/cn";
+
+import { PostStatus } from "../../types";
 
 // 상태에 따른 배지 스타일과 텍스트를 정의하는 맵
 const STATUS_INFO: {

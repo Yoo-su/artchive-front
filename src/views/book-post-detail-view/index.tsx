@@ -1,12 +1,12 @@
 "use client";
 
-import { useBookPostDetailQuery } from "@/features/book/queries";
-import { useAuthStore } from "@/features/auth/store";
-import { BookPostInfo } from "@/features/book/components/book-post-detail/book-post-info";
-import { BookPostActions } from "@/features/book/components/book-post-detail/book-post-actions";
-
 import { AlertTriangle } from "lucide-react";
+
+import { useAuthStore } from "@/features/auth/store";
+import { BookPostActions } from "@/features/book/components/book-post-detail/book-post-actions";
+import { BookPostInfo } from "@/features/book/components/book-post-detail/book-post-info";
 import { BookPostDetailSkeleton } from "@/features/book/components/book-post-detail/skeleton";
+import { useBookPostDetailQuery } from "@/features/book/queries";
 
 interface BookPostDetailViewProps {
   postId: string;

@@ -1,9 +1,14 @@
+import { Edit, MoreVertical, Trash2 } from "lucide-react";
 import Image from "next/image";
-import { UsedBookPost, PostStatus } from "../../types";
-import { useUpdateBookPostStatusMutation } from "../../queries";
-import { MoreVertical, Edit, Trash2 } from "lucide-react";
 
 import { Button } from "@/shared/components/shadcn/button";
+import { Card, CardContent } from "@/shared/components/shadcn/card";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/shared/components/shadcn/dropdown-menu";
 import {
   Select,
   SelectContent,
@@ -11,21 +16,10 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/shadcn/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/shared/components/shadcn/dropdown-menu";
-import { Card, CardContent } from "@/shared/components/shadcn/card";
-import { PostStatusBadge } from "../common/post-status-badge";
 
-// 상태에 따른 배지 스타일
-const statusStyles: { [key in PostStatus]: string } = {
-  FOR_SALE: "bg-blue-100 text-blue-800 border-blue-200",
-  RESERVED: "bg-yellow-100 text-yellow-800 border-yellow-200",
-  SOLD: "bg-green-100 text-green-800 border-green-200",
-};
+import { useUpdateBookPostStatusMutation } from "../../queries";
+import { PostStatus, UsedBookPost } from "../../types";
+import { PostStatusBadge } from "../common/post-status-badge";
 
 // 상태 한글 변환
 const statusToKorean: { [key in PostStatus]: string } = {

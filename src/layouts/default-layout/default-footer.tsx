@@ -1,6 +1,7 @@
-import Link from "next/link";
-import { Separator } from "@/shared/components/shadcn/separator";
 import { BookHeart, Github } from "lucide-react"; // 아이콘 추가
+import Link from "next/link";
+
+import { Separator } from "@/shared/components/shadcn/separator";
 
 export const DefaultFooter = () => {
   const currentYear = new Date().getFullYear();

@@ -1,9 +1,11 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { useBookSearchStore } from "../stores/use-book-search-store";
-import { Input } from "@/shared/components/shadcn/input";
 import { Search } from "lucide-react";
+import { useEffect, useState } from "react";
+
+import { Input } from "@/shared/components/shadcn/input";
+
+import { useBookSearchStore } from "../stores/use-book-search-store";
 
 export const BookSearchInput = () => {
   const [inputValue, setInputValue] = useState("");

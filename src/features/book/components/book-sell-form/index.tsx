@@ -1,19 +1,20 @@
 "use client";
 
-import Image from "next/image";
-import { useState } from "react";
-import { useForm } from "react-hook-form";
-import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImagePlus, Loader2, X } from "lucide-react";
-
-import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
-import { SellFormValues, sellFormSchema } from "./schema";
-import { uploadImages } from "../../actions/upload-action";
-import { createBookPost } from "../../apis";
-import { BookInfo, CreateBookPostParams } from "../../types";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
 
 import { Button } from "@/shared/components/shadcn/button";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/shared/components/shadcn/card";
 import {
   Form,
   FormControl,
@@ -23,7 +24,6 @@ import {
   FormMessage,
 } from "@/shared/components/shadcn/form";
 import { Input } from "@/shared/components/shadcn/input";
-import { Textarea } from "@/shared/components/shadcn/textarea";
 import {
   Select,
   SelectContent,
@@ -31,13 +31,13 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/shared/components/shadcn/select";
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/shadcn/card";
+import { Textarea } from "@/shared/components/shadcn/textarea";
+import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
+
+import { uploadImages } from "../../actions/upload-action";
+import { createBookPost } from "../../apis";
+import { BookInfo, CreateBookPostParams } from "../../types";
+import { sellFormSchema,SellFormValues } from "./schema";
 
 interface BookSellFormProps {
   bookInfo: BookInfo;

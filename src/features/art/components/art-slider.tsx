@@ -1,3 +1,4 @@
+import Image from "next/image";
 import { ReactNode, useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -8,7 +9,6 @@ import { cn } from "@/shared/utils";
 import { useArtListQuery } from "../queries";
 import { ArtDomain, ArtItem, Genre, GetArtListParams } from "../types";
 import { ArtSliderSkeleton } from "./skeleton";
-import Image from "next/image";
 
 interface ArtSliderRootProps {
   children: ReactNode;
