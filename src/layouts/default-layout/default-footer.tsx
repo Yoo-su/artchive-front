@@ -1,0 +1,66 @@
+import { BookHeart, Github } from "lucide-react"; // 아이콘 추가
+import Link from "next/link";
+
+import { Separator } from "@/shared/components/shadcn/separator";
+
+export const DefaultFooter = () => {
+  const currentYear = new Date().getFullYear();
+
+  return (
+    <footer className="w-full border-t bg-gray-50">
+      <div className="mx-auto w-full max-w-3xl px-4 py-8">
+        {/* 상단 섹션: 로고 및 네비게이션 링크 */}
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <Link
+            href="/"
+            className="flex items-center gap-2 text-lg font-bold text-gray-700 transition-colors hover:text-gray-900"
+          >
+            <BookHeart className="h-6 w-6 text-violet-500" />
+            <span>ArtChive</span>
+          </Link>
+          <div className="flex items-center gap-6 text-sm text-gray-500">
+            <Link
+              href="/about"
+              className="transition-colors hover:text-gray-900"
+            >
+              서비스 소개
+            </Link>
+            <Link
+              href="/terms"
+              className="transition-colors hover:text-gray-900"
+            >
+              이용약관
+            </Link>
+            <Link
+              href="/privacy"
+              className="transition-colors hover:text-gray-900"
+            >
+              개인정보처리방침
+            </Link>
+          </div>
+        </div>
+
+        <Separator className="my-6" />
+
+        {/* 하단 섹션: 저작권 및 소셜 링크 */}
+        <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
+          <p className="text-xs text-gray-500">
+            © {currentYear} ArtChive. All Rights Reserved.
+          </p>
+          <div className="flex items-center gap-4">
+            <a
+              href="https://github.com/Yoo-su" // 실제 깃허브 주소로 변경하세요.
+              target="_blank"
+              rel="noopener noreferrer"
+              aria-label="GitHub"
+              className="text-gray-400 transition-colors hover:text-gray-800"
+            >
+              <Github className="h-5 w-5" />
+            </a>
+            {/* 다른 소셜 링크 추가 가능 */}
+          </div>
+        </div>
+      </div>
+    </footer>
+  );
+};

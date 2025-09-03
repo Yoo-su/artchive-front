@@ -1,5 +1,5 @@
-import { MainView } from "@/views";
+import { redirect } from "next/navigation";
 
 export default function MainPage() {
-  return <MainView />;
+  redirect("/home");
 }
