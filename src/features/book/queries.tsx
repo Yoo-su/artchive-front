@@ -160,5 +160,6 @@ export const useInfiniteRelatedPostsQuery = ({
       return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
     },
     enabled: !!isbn, // isbn이 있을 때만 쿼리 실행
+    staleTime: 0,
   });
 };
