@@ -1,9 +1,10 @@
 "use client";
 
-import { useEffect, useRef, useState, useLayoutEffect } from "react";
+import { ArrowLeft, Loader2,SendHorizontal } from "lucide-react";
+import Image from "next/image";
+import { useEffect, useLayoutEffect,useRef, useState } from "react";
+
 import { useAuthStore } from "@/features/auth/store";
-import { useChatStore } from "../stores/use-chat-store";
-import { ChatMessage, ChatRoom as ChatRoomType } from "../types";
 import {
   Avatar,
   AvatarFallback,
@@ -11,8 +12,9 @@ import {
 } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
-import { ArrowLeft, SendHorizontal, Loader2 } from "lucide-react";
-import Image from "next/image";
+
+import { useChatStore } from "../stores/use-chat-store";
+import { ChatMessage, ChatRoom as ChatRoomType } from "../types";
 
 // 개별 메시지 버블 UI 컴포넌트
 const MessageBubble = ({

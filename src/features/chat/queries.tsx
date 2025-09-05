@@ -1,6 +1,8 @@
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
-import { getMyChatRooms, getChatMessages } from "./apis";
+
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
+
+import { getChatMessages,getMyChatRooms } from "./apis";
 
 export const useMyChatRoomsQuery = () => {
   return useQuery({

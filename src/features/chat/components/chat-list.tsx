@@ -1,9 +1,10 @@
 "use client";
 
+import { MessageSquareX } from "lucide-react";
+
+import { ChatRoom } from "../types";
 import { ChatItem } from "./chat-item";
 import { ChatListSkeleton } from "./skeleton";
-import { ChatRoom } from "../types";
-import { MessageSquareX } from "lucide-react";
 
 interface ChatListProps {
   rooms: ChatRoom[];

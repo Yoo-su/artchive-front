@@ -1,11 +1,13 @@
 "use client";
 
-import { useMemo } from "react";
-import { useChatStore } from "../stores/use-chat-store";
-import { useMyChatRoomsQuery } from "../queries";
-import { Button } from "@/shared/components/shadcn/button";
+import { AnimatePresence,motion } from "framer-motion";
 import { MessagesSquare, X } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useMemo } from "react";
+
+import { Button } from "@/shared/components/shadcn/button";
+
+import { useMyChatRoomsQuery } from "../queries";
+import { useChatStore } from "../stores/use-chat-store";
 
 export const ChatToggleButton = () => {
   const { toggleChat, isChatOpen } = useChatStore();

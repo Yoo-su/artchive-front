@@ -1,5 +1,6 @@
 import { privateAxios } from "@/shared/libs/axios";
-import { ChatRoom, ChatMessage, GetChatMessagesResponse } from "./types";
+
+import { ChatRoom, GetChatMessagesResponse } from "./types";
 
 /**
  * 특정 판매글에 대한 채팅방을 찾거나 생성하는 API

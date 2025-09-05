@@ -2,11 +2,12 @@
 
 import { ReactNode } from "react";
 
-import { DefaultFooter } from "./default-footer";
-import { DefaultHeader } from "./default-header";
+import { useAuthStore } from "@/features/auth/store";
 import { ChatToggleButton } from "@/features/chat/components/chat-toggle-button";
 import { ChatWidget } from "@/features/chat/components/chat-widget";
-import { useAuthStore } from "@/features/auth/store";
+
+import { DefaultFooter } from "./default-footer";
+import { DefaultHeader } from "./default-header";
 
 interface DefaultLayoutProps {
   children: ReactNode;

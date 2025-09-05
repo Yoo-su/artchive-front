@@ -1,20 +1,22 @@
 "use client";
 
-import { useState } from "react";
 import { useQueryClient } from "@tanstack/react-query";
+import { format, isToday, isYesterday } from "date-fns";
+import { ko } from "date-fns/locale";
+import { motion } from "framer-motion";
+import { useState } from "react";
+
 import { useAuthStore } from "@/features/auth/store";
-import { useChatStore } from "../stores/use-chat-store";
-import { markMessagesAsRead } from "../apis";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-import { ChatRoom } from "../types";
 import {
   Avatar,
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
-import { format, isToday, isYesterday } from "date-fns";
-import { ko } from "date-fns/locale";
-import { motion } from "framer-motion";
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
+
+import { markMessagesAsRead } from "../apis";
+import { useChatStore } from "../stores/use-chat-store";
+import { ChatRoom } from "../types";
 
 const formatLastMessageTime = (date: string) => {
   const messageDate = new Date(date);

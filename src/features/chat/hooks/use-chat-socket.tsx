@@ -1,8 +1,10 @@
+import { useQueryClient } from "@tanstack/react-query";
 import { useEffect, useRef } from "react";
 import { io, Socket } from "socket.io-client";
+
 import { useAuthStore } from "@/features/auth/store";
-import { useQueryClient } from "@tanstack/react-query";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
+
 import { ChatMessage, ChatRoom, GetChatMessagesResponse } from "../types";
 
 type InfiniteMessagesData = {

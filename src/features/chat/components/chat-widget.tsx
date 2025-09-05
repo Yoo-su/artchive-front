@@ -1,14 +1,15 @@
 "use client";
 
-import { motion, AnimatePresence } from "framer-motion";
-import { useChatStore } from "../stores/use-chat-store";
+import { AnimatePresence,motion } from "framer-motion";
+import { useMemo } from "react";
+
 import { Card } from "@/shared/components/shadcn/card";
+
+import { useChatSocket } from "../hooks/use-chat-socket";
+import { useInfiniteChatMessagesQuery,useMyChatRoomsQuery } from "../queries";
+import { useChatStore } from "../stores/use-chat-store";
 import { ChatList } from "./chat-list";
 import { ChatRoom } from "./chat-room";
-
-import { useMyChatRoomsQuery, useInfiniteChatMessagesQuery } from "../queries";
-import { useChatSocket } from "../hooks/use-chat-socket";
-import { useMemo } from "react";
 
 export const ChatWidget = () => {
   const { isChatOpen, activeChatRoomId } = useChatStore();
