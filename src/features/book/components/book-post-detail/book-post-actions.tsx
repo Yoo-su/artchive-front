@@ -1,6 +1,11 @@
 "use client";
 
-import { Edit, MessageCircle, Trash2 } from "lucide-react";
+import { useState } from "react";
+import { useQueryClient } from "@tanstack/react-query";
+import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { findOrCreateRoom } from "@/features/chat/apis";
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { Edit, MessageCircle, Trash2, Loader2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -17,9 +22,8 @@ import {
   CardTitle,
 } from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
-
-import { UsedBookPost } from "../../types";
 import { PostStatusBadge } from "../common/post-status-badge";
+import { UsedBookPost } from "../../types";
 
 interface BookPostActionsProps {
   post: UsedBookPost;
@@ -27,6 +31,10 @@ interface BookPostActionsProps {
 }
 
 export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
+  const [isCreatingChat, setIsCreatingChat] = useState(false);
+  const { openChatRoom } = useChatStore();
+  const queryClient = useQueryClient();
+
   const discountRate =
     Number(post.book.discount) > 0
       ? Math.round(
@@ -35,6 +43,25 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
             100
         )
       : 0;
+
+  const handleStartChat = async () => {
+    setIsCreatingChat(true);
+    try {
+      const room = await findOrCreateRoom(post.id);
+
+      // 1. 채팅방 목록 쿼리를 무효화하여 최신 상태로 갱신하도록 합니다.
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey, // 배열로 감싸기
+      });
+      // 2. Zustand에는 채팅방의 ID만 전달하여 UI 상태를 변경합니다.
+      openChatRoom(room.id);
+    } catch (error) {
+      console.error("Failed to start chat:", error);
+      alert("채팅방을 여는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
+    } finally {
+      setIsCreatingChat(false);
+    }
+  };
 
   return (
     <div className="space-y-6">
@@ -53,7 +80,7 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
           {post.price.toLocaleString()}원
           {discountRate > 0 && (
             <span className="ml-3 text-lg font-medium text-gray-400 line-through">
-              {post.book.discount.toLocaleString()}원
+              {Number(post.book.discount).toLocaleString()}원
             </span>
           )}
         </p>
@@ -88,9 +115,18 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
             </Button>
           </div>
         ) : (
-          <Button size="lg" className="w-full md:w-auto">
-            <MessageCircle className="w-5 h-5 mr-2" />
-            판매자와 채팅하기
+          <Button
+            size="lg"
+            className="w-full md:w-auto"
+            onClick={handleStartChat}
+            disabled={isCreatingChat}
+          >
+            {isCreatingChat ? (
+              <Loader2 className="w-5 h-5 mr-2 animate-spin" />
+            ) : (
+              <MessageCircle className="w-5 h-5 mr-2" />
+            )}
+            {isCreatingChat ? "채팅방 여는 중..." : "판매자와 채팅하기"}
           </Button>
         )}
       </div>
@@ -104,7 +140,7 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
 
       {/* Book Info Card */}
       <Link href={`/book/${post.book.isbn}/detail`}>
-        <Card className="bg-gray-50">
+        <Card className="transition-shadow bg-gray-50 hover:shadow-md">
           <CardHeader>
             <CardTitle className="text-lg">도서 정보</CardTitle>
           </CardHeader>
@@ -115,6 +151,7 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
                   src={post.book.image}
                   alt={post.book.title}
                   fill
+                  sizes="80px"
                   className="object-cover rounded-md"
                 />
               </div>

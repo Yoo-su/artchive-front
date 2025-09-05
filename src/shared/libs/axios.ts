@@ -3,7 +3,7 @@ import { signOut } from "next-auth/react";
 
 import { useAuthStore } from "@/features/auth/store";
 
-const baseURL = process.env.API_URL;
+const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
 // 1. 인증이 필요 없는 공개 API용 인스턴스
 export const publicAxios = axios.create({
