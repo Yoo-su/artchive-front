@@ -1,7 +1,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Edit, Loader2,MessageCircle, Trash2 } from "lucide-react";
+import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -49,12 +49,9 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
     setIsCreatingChat(true);
     try {
       const room = await findOrCreateRoom(post.id);
-
-      // 1. 채팅방 목록 쿼리를 무효화하여 최신 상태로 갱신하도록 합니다.
       await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey, // 배열로 감싸기
+        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
       });
-      // 2. Zustand에는 채팅방의 ID만 전달하여 UI 상태를 변경합니다.
       openChatRoom(room.id);
     } catch (error) {
       console.error("Failed to start chat:", error);
@@ -89,8 +86,7 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
 
       <Separator />
 
-      {/* Seller Info */}
-      <div className="flex items-center justify-between">
+      <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex items-center gap-3">
           <Avatar>
             <AvatarImage
@@ -116,9 +112,10 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
             </Button>
           </div>
         ) : (
+          // 이 버튼의 w-full은 이제 세로로 쌓였을 때 자연스럽게 동작합니다.
           <Button
             size="lg"
-            className="w-full md:w-auto"
+            className="w-full sm:w-auto"
             onClick={handleStartChat}
             disabled={isCreatingChat}
           >
