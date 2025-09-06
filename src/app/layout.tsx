@@ -6,6 +6,7 @@ import "swiper/css/effect-coverflow";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
@@ -49,6 +50,7 @@ export default function Layout({
             <QueryProvider>{children}</QueryProvider>
           </AuthProvider>
         </NextAuthSessionProvider>
+        <Analytics />
       </body>
     </html>
   );

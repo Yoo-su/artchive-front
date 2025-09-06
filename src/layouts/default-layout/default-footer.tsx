@@ -1,4 +1,4 @@
-import { BookHeart, Github } from "lucide-react"; // 아이콘 추가
+import { BookHeart, Github } from "lucide-react";
 import Link from "next/link";
 
 import { Separator } from "@/shared/components/shadcn/separator";
@@ -49,7 +49,7 @@ export const DefaultFooter = () => {
           </p>
           <div className="flex items-center gap-4">
             <a
-              href="https://github.com/Yoo-su" // 실제 깃허브 주소로 변경하세요.
+              href="https://github.com/Yoo-su"
               target="_blank"
               rel="noopener noreferrer"
               aria-label="GitHub"
@@ -57,7 +57,6 @@ export const DefaultFooter = () => {
             >
               <Github className="h-5 w-5" />
             </a>
-            {/* 다른 소셜 링크 추가 가능 */}
           </div>
         </div>
       </div>
