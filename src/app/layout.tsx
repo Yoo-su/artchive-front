@@ -13,6 +13,7 @@ import localFont from "next/font/local";
 
 import { QueryProvider } from "@/shared/providers";
 import AuthProvider from "@/shared/providers/auth-provider";
+import { ChatProvider } from "@/shared/providers/chat-provider";
 import NextAuthSessionProvider from "@/shared/providers/session-provider";
 
 export const metadata: Metadata = {
@@ -47,7 +48,9 @@ export default function Layout({
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <NextAuthSessionProvider>
           <AuthProvider>
-            <QueryProvider>{children}</QueryProvider>
+            <QueryProvider>
+              <ChatProvider>{children}</ChatProvider>
+            </QueryProvider>
           </AuthProvider>
         </NextAuthSessionProvider>
         <Analytics />
