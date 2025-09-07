@@ -3,7 +3,6 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { ImagePlus, Loader2, X } from "lucide-react";
 import Image from "next/image";
-import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 
@@ -34,8 +33,7 @@ import {
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 
-import { uploadImages } from "../../actions/upload-action";
-import { createBookPost } from "../../apis";
+import { useCreateBookPostMutation } from "../../mutations"; // ⭐️ 1단계에서 만든 Hook을 임포트
 import { BookInfo, CreateBookPostParams } from "../../types";
 import { sellFormSchema, SellFormValues } from "./schema";
 
@@ -44,9 +42,10 @@ interface BookSellFormProps {
 }
 
 export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
-  const router = useRouter();
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
-  const [isSubmitting, setIsSubmitting] = useState(false);
+
+  // ⭐️ 로직을 분리한 Mutation Hook을 사용합니다.
+  const { mutate, isPending } = useCreateBookPostMutation();
 
   const form = useForm<SellFormValues>({
     resolver: zodResolver(sellFormSchema),
@@ -93,50 +92,29 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
     form.setValue("images", dataTransfer.files, { shouldValidate: true });
   };
 
-  const onSubmit = async (data: SellFormValues) => {
-    setIsSubmitting(true);
-    try {
-      const formData = new FormData();
-      Array.from(data.images).forEach((file) =>
-        formData.append("images", file)
-      );
-      const uploadResult = await uploadImages(formData);
+  // ⭐️ onSubmit 함수가 매우 간결해졌습니다.
+  const onSubmit = (data: SellFormValues) => {
+    const formData = new FormData();
+    Array.from(data.images).forEach((file) => formData.append("images", file));
 
-      if (!uploadResult.success || !uploadResult.blobs) {
-        throw new Error(uploadResult.error || "이미지 업로드에 실패했습니다.");
-      }
-      const imageUrls = uploadResult.blobs.map((blob) => blob.url);
+    const payload: Omit<CreateBookPostParams, "imageUrls"> = {
+      title: data.title,
+      price: data.price,
+      city: data.city,
+      district: data.district,
+      content: data.content,
+      book: {
+        isbn: bookInfo.isbn,
+        title: bookInfo.title,
+        description: bookInfo.description,
+        author: bookInfo.author,
+        publisher: bookInfo.publisher,
+        image: bookInfo.image,
+      },
+    };
 
-      const payload: CreateBookPostParams = {
-        title: data.title,
-        price: data.price,
-        city: data.city,
-        district: data.district,
-        content: data.content,
-        imageUrls: imageUrls,
-        book: {
-          isbn: bookInfo.isbn,
-          title: bookInfo.title,
-          description: bookInfo.description,
-          author: bookInfo.author,
-          publisher: bookInfo.publisher,
-          image: bookInfo.image,
-        },
-      };
-
-      const postResult = await createBookPost(payload);
-      if (!postResult.success) {
-        throw new Error("게시글 등록에 실패했습니다.");
-      }
-
-      alert("판매글이 성공적으로 등록되었습니다.");
-      router.push("/my-page/posts");
-    } catch (error: any) {
-      console.error("Submission failed:", error);
-      alert(error.message || "오류가 발생했습니다. 다시 시도해주세요.");
-    } finally {
-      setIsSubmitting(false);
-    }
+    // ⭐️ Hook을 호출하여 이미지 업로드 및 데이터 제출을 한번에 처리합니다.
+    mutate({ formData, payload });
   };
 
   return (
@@ -172,7 +150,6 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
                   <FormControl>
                     <Input placeholder="판매글 제목을 입력하세요" {...field} />
                   </FormControl>
-                  {/* ✨ [수정됨] 에러 메시지를 위한 고정 높이 공간을 확보합니다. */}
                   <div className="h-5">
                     <FormMessage />
                   </div>
@@ -221,8 +198,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
                       <SelectContent>
                         {Object.keys(KOREA_DISTRICTS).map((city) => (
                           <SelectItem key={city} value={city}>
-                            {" "}
-                            {city}{" "}
+                            {city}
                           </SelectItem>
                         ))}
                       </SelectContent>
@@ -256,8 +232,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
                         {selectedCity &&
                           KOREA_DISTRICTS[selectedCity].map((district) => (
                             <SelectItem key={district} value={district}>
-                              {" "}
-                              {district}{" "}
+                              {district}
                             </SelectItem>
                           ))}
                       </SelectContent>
@@ -276,8 +251,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
               render={() => (
                 <FormItem>
                   <FormLabel>
-                    {" "}
-                    책 상태 이미지 ({imagePreviews.length} / 5){" "}
+                    책 상태 이미지 ({imagePreviews.length} / 5)
                   </FormLabel>
                   <FormControl>
                     <div className="flex flex-wrap items-center gap-4">
@@ -306,8 +280,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
                         >
                           <ImagePlus className="w-8 h-8 text-gray-400" />
                           <span className="mt-1 text-xs text-gray-500">
-                            {" "}
-                            이미지 추가{" "}
+                            이미지 추가
                           </span>
                         </label>
                       )}
@@ -352,11 +325,9 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
             <Button
               type="submit"
               className="w-full !mt-10"
-              disabled={isSubmitting}
+              disabled={isPending}
             >
-              {isSubmitting && (
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-              )}
+              {isPending && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
               판매글 등록하기
             </Button>
           </form>

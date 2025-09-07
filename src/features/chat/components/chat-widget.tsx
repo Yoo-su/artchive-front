@@ -5,14 +5,14 @@ import { useMemo } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
 
-import { useChatSocket } from "../hooks/use-chat-socket";
 import { useInfiniteChatMessagesQuery, useMyChatRoomsQuery } from "../queries";
 import { useChatStore } from "../stores/use-chat-store";
 import { ChatList } from "./chat-list";
 import { ChatRoom } from "./chat-room";
 
 export const ChatWidget = () => {
-  const { isChatOpen, activeChatRoomId } = useChatStore();
+  // `sendMessage`는 스토어에서 가져오도록 수정
+  const { isChatOpen, activeChatRoomId, sendMessage } = useChatStore();
   const { data: rooms, isLoading: isRoomsLoading } = useMyChatRoomsQuery();
   const {
     data: messagesData,
@@ -22,7 +22,7 @@ export const ChatWidget = () => {
     isLoading: isMessagesLoading,
   } = useInfiniteChatMessagesQuery(activeChatRoomId!);
 
-  const { sendMessage } = useChatSocket(activeChatRoomId);
+  // useChatSocket hook은 이제 사용하지 않습니다.
 
   const activeChatRoom = rooms?.find((room) => room.id === activeChatRoomId);
 
@@ -52,7 +52,7 @@ export const ChatWidget = () => {
                 room={activeChatRoom}
                 messages={roomMessages}
                 isLoading={isMessagesLoading}
-                sendMessage={sendMessage}
+                sendMessage={sendMessage} // 스토어의 sendMessage 전달
                 fetchPreviousPage={fetchPreviousPage}
                 hasPreviousPage={hasPreviousPage}
                 isFetchingPreviousPage={isFetchingPreviousPage}
