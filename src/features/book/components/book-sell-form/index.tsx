@@ -37,7 +37,7 @@ import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 import { uploadImages } from "../../actions/upload-action";
 import { createBookPost } from "../../apis";
 import { BookInfo, CreateBookPostParams } from "../../types";
-import { sellFormSchema,SellFormValues } from "./schema";
+import { sellFormSchema, SellFormValues } from "./schema";
 
 interface BookSellFormProps {
   bookInfo: BookInfo;

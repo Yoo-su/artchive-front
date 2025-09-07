@@ -55,7 +55,6 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
       openChatRoom(room.id);
     } catch (error) {
       console.error("Failed to start chat:", error);
-      alert("채팅방을 여는 데 실패했습니다. 잠시 후 다시 시도해주세요.");
     } finally {
       setIsCreatingChat(false);
     }

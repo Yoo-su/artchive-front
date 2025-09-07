@@ -38,19 +38,15 @@ export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
   const { mutate: updateStatus } = useUpdateBookPostStatusMutation();
 
   const handleStatusChange = (newStatus: PostStatus) => {
-    // DropdownMenu 내부의 Select 클릭 시 링크 이동을 막기 위함
-    event?.stopPropagation();
     updateStatus({ postId: post.id, status: newStatus });
   };
 
   const handleDropdownClick = (event: React.MouseEvent) => {
-    // DropdownMenu를 열 때 카드 전체의 onClick 이벤트가 실행되는 것을 방지
     event.stopPropagation();
   };
 
   return (
-    // Link 컴포넌트로 전체 카드를 감싸서 클릭 가능 영역으로 만듭니다.
-    <Link href={`/used-book/${post.id}`} passHref>
+    <Link href={`/book/post/${post.id}`} passHref>
       <Card className="transition-shadow duration-300 hover:shadow-md cursor-pointer">
         <CardContent className="flex items-center p-4 gap-4">
           <div className="relative w-20 h-28 flex-shrink-0">
@@ -63,10 +59,7 @@ export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
             />
           </div>
           <div className="flex-grow min-w-0">
-            {" "}
-            {/* ✨ [수정됨] 자식 요소의 너비 계산 기준점 */}
             <div className="flex items-start justify-between gap-2">
-              {/* ✨ [수정됨] 제목과 정보가 포함된 영역이 유연하게 늘어나도록 설정 */}
               <div className="flex-grow w-0">
                 <PostStatusBadge status={post.status} />
                 <h3 className="font-semibold text-lg mt-1 truncate">
@@ -76,7 +69,6 @@ export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
                   {post.book.title}
                 </p>
               </div>
-              {/* ✨ [수정됨] 더보기 메뉴가 밀려나지 않도록 고정 */}
               <div className="flex-shrink-0" onClick={handleDropdownClick}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>

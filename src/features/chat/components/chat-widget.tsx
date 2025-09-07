@@ -1,12 +1,12 @@
 "use client";
 
-import { AnimatePresence,motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useMemo } from "react";
 
 import { Card } from "@/shared/components/shadcn/card";
 
 import { useChatSocket } from "../hooks/use-chat-socket";
-import { useInfiniteChatMessagesQuery,useMyChatRoomsQuery } from "../queries";
+import { useInfiniteChatMessagesQuery, useMyChatRoomsQuery } from "../queries";
 import { useChatStore } from "../stores/use-chat-store";
 import { ChatList } from "./chat-list";
 import { ChatRoom } from "./chat-room";
@@ -28,8 +28,6 @@ export const ChatWidget = () => {
 
   const roomMessages = useMemo(() => {
     if (!messagesData) return [];
-    // 1. flatMap으로 모든 페이지의 메시지를 하나의 배열로 만듭니다.
-    // 2. sort로 시간순(오래된 메시지 -> 최신 메시지)으로 정렬합니다.
     return messagesData.pages
       .flatMap((page) => page.messages)
       .sort(

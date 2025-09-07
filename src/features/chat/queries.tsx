@@ -2,13 +2,13 @@ import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
-import { getChatMessages,getMyChatRooms } from "./apis";
+import { getChatMessages, getMyChatRooms } from "./apis";
 
 export const useMyChatRoomsQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
     queryFn: getMyChatRooms,
-    staleTime: 5 * 60 * 1000, // 5분
+    staleTime: 0,
   });
 };
 
