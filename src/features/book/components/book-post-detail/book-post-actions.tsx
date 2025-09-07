@@ -52,7 +52,7 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
       });
-      openChatRoom(room.id);
+      openChatRoom(room.id, queryClient);
     } catch (error) {
       console.error("Failed to start chat:", error);
     } finally {
