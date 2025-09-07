@@ -11,8 +11,15 @@ import { ChatList } from "./chat-list";
 import { ChatRoom } from "./chat-room";
 
 export const ChatWidget = () => {
-  // `sendMessage`는 스토어에서 가져오도록 수정
-  const { isChatOpen, activeChatRoomId, sendMessage } = useChatStore();
+  const {
+    isChatOpen,
+    activeChatRoomId,
+    sendMessage,
+    typingUsers,
+    emitStartTyping,
+    emitStopTyping,
+  } = useChatStore();
+
   const { data: rooms, isLoading: isRoomsLoading } = useMyChatRoomsQuery();
   const {
     data: messagesData,
@@ -22,9 +29,9 @@ export const ChatWidget = () => {
     isLoading: isMessagesLoading,
   } = useInfiniteChatMessagesQuery(activeChatRoomId!);
 
-  // useChatSocket hook은 이제 사용하지 않습니다.
-
   const activeChatRoom = rooms?.find((room) => room.id === activeChatRoomId);
+
+  const typingNickname = activeChatRoomId ? typingUsers[activeChatRoomId] : "";
 
   const roomMessages = useMemo(() => {
     if (!messagesData) return [];
@@ -52,10 +59,13 @@ export const ChatWidget = () => {
                 room={activeChatRoom}
                 messages={roomMessages}
                 isLoading={isMessagesLoading}
-                sendMessage={sendMessage} // 스토어의 sendMessage 전달
+                sendMessage={sendMessage}
                 fetchPreviousPage={fetchPreviousPage}
                 hasPreviousPage={hasPreviousPage}
                 isFetchingPreviousPage={isFetchingPreviousPage}
+                typingNickname={typingNickname}
+                emitStartTyping={emitStartTyping}
+                emitStopTyping={emitStopTyping}
               />
             ) : (
               <ChatList rooms={rooms || []} isLoading={isRoomsLoading} />

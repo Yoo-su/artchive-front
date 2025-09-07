@@ -14,12 +14,10 @@ export const ChatProvider = ({ children }: { children: React.ReactNode }) => {
   const queryClient = useQueryClient();
 
   useEffect(() => {
-    // accessToken이 있고, 소켓이 연결되지 않았을 때 연결
     if (accessToken && !socket) {
       connect(queryClient);
     }
 
-    // accessToken이 없거나 컴포넌트 언마운트 시 연결 해제
     return () => {
       if (!accessToken) {
         disconnect();

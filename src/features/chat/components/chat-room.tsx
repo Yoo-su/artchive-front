@@ -1,8 +1,10 @@
 "use client";
 
-import { ArrowLeft, Loader2,SendHorizontal } from "lucide-react";
+import { AnimatePresence, motion } from "framer-motion";
+import debounce from "lodash/debounce";
+import { ArrowLeft, Loader2, SendHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useEffect, useLayoutEffect,useRef, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
 import { useAuthStore } from "@/features/auth/store";
 import {
@@ -16,7 +18,6 @@ import { Input } from "@/shared/components/shadcn/input";
 import { useChatStore } from "../stores/use-chat-store";
 import { ChatMessage, ChatRoom as ChatRoomType } from "../types";
 
-// 개별 메시지 버블 UI 컴포넌트
 const MessageBubble = ({
   message,
   isMine,
@@ -47,7 +48,6 @@ const MessageBubble = ({
   </div>
 );
 
-// 부모(ChatWidget)로부터 받을 props 타입 정의
 interface ChatRoomProps {
   room?: ChatRoomType;
   messages: ChatMessage[];
@@ -56,6 +56,9 @@ interface ChatRoomProps {
   fetchPreviousPage: () => void;
   hasPreviousPage?: boolean;
   isFetchingPreviousPage: boolean;
+  typingNickname?: string;
+  emitStartTyping: () => void;
+  emitStopTyping: () => void;
 }
 
 export const ChatRoom = ({
@@ -66,6 +69,9 @@ export const ChatRoom = ({
   fetchPreviousPage,
   hasPreviousPage,
   isFetchingPreviousPage,
+  typingNickname,
+  emitStartTyping,
+  emitStopTyping,
 }: ChatRoomProps) => {
   const { closeChatRoom } = useChatStore();
   const { user: currentUser } = useAuthStore();
@@ -73,8 +79,18 @@ export const ChatRoom = ({
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<{ scrollHeight: number } | null>(null);
-
   const lastMessageIdRef = useRef<number | null>(null);
+
+  const debouncedStopTyping = useMemo(
+    () => debounce(emitStopTyping, 1500),
+    [emitStopTyping]
+  );
+
+  useEffect(() => {
+    return () => {
+      debouncedStopTyping.cancel();
+    };
+  }, [debouncedStopTyping]);
 
   useLayoutEffect(() => {
     if (scrollRef.current && messageContainerRef.current) {
@@ -87,7 +103,6 @@ export const ChatRoom = ({
 
   useEffect(() => {
     const lastMessage = messages[messages.length - 1];
-    // 마지막 메시지가 변경되었을 때만 (즉, 새 메시지가 도착했을 때만) 자동 스크롤
     if (lastMessage && lastMessage.id !== lastMessageIdRef.current) {
       messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
       lastMessageIdRef.current = lastMessage.id;
@@ -119,16 +134,23 @@ export const ChatRoom = ({
     }
   };
 
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setNewMessage(e.target.value);
+    emitStartTyping();
+    debouncedStopTyping();
+  };
+
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
     if (newMessage.trim() === "") return;
     sendMessage(newMessage);
     setNewMessage("");
+    debouncedStopTyping.cancel();
+    emitStopTyping();
   };
 
   return (
     <div className="h-full flex flex-col bg-white">
-      {/* 헤더 */}
       <div className="flex items-center gap-4 p-4 border-b flex-shrink-0">
         <Button
           variant="ghost"
@@ -148,13 +170,24 @@ export const ChatRoom = ({
         </div>
         <div className="overflow-hidden">
           <p className="font-semibold truncate">{opponent?.nickname}</p>
-          <p className="text-sm text-gray-500 truncate">
-            {room.usedBookPost.title}
-          </p>
+          <div className="h-5">
+            <AnimatePresence>
+              {typingNickname && (
+                <motion.p
+                  initial={{ y: -10, opacity: 0 }}
+                  animate={{ y: 0, opacity: 1 }}
+                  exit={{ y: 10, opacity: 0 }}
+                  transition={{ duration: 0.2 }}
+                  className="text-xs text-violet-600 truncate"
+                >
+                  {typingNickname}님이 입력 중...
+                </motion.p>
+              )}
+            </AnimatePresence>
+          </div>
         </div>
       </div>
 
-      {/* 메시지 목록 */}
       <div
         className="flex-grow overflow-y-auto p-4 space-y-4"
         ref={messageContainerRef}
@@ -175,12 +208,11 @@ export const ChatRoom = ({
         <div ref={messagesEndRef} />
       </div>
 
-      {/* 메시지 입력 폼 */}
       <div className="p-4 border-t bg-white flex-shrink-0">
         <form className="flex items-center gap-2" onSubmit={handleSendMessage}>
           <Input
             value={newMessage}
-            onChange={(e) => setNewMessage(e.target.value)}
+            onChange={handleInputChange}
             placeholder="메시지를 입력하세요..."
             autoComplete="off"
             className="flex-grow"

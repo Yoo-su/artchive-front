@@ -5,6 +5,7 @@ import { create } from "zustand";
 import { useAuthStore } from "@/features/auth/store";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
+import { getMyChatRooms } from "../apis";
 import { ChatMessage, ChatRoom, GetChatMessagesResponse } from "../types";
 
 type InfiniteMessagesData = {
@@ -16,22 +17,26 @@ interface ChatState {
   socket: Socket | null;
   isChatOpen: boolean;
   activeChatRoomId: number | null;
+  typingUsers: { [roomId: number]: string };
 
   connect: (queryClient: QueryClient) => void;
   disconnect: () => void;
   sendMessage: (content: string) => void;
+  emitStartTyping: () => void;
+  emitStopTyping: () => void;
 
   toggleChat: () => void;
-  openChatRoom: (roomId: number) => void;
+  openChatRoom: (roomId: number, queryClient: QueryClient) => void;
   closeChatRoom: () => void;
+  markRoomAsRead: (roomId: number, queryClient: QueryClient) => void;
 }
 
 export const useChatStore = create<ChatState>((set, get) => ({
   socket: null,
   isChatOpen: false,
   activeChatRoomId: null,
+  typingUsers: {},
 
-  // 1. 소켓 연결 및 이벤트 리스너 설정
   connect: (queryClient) => {
     const { accessToken, user: currentUser } = useAuthStore.getState();
 
@@ -47,21 +52,36 @@ export const useChatStore = create<ChatState>((set, get) => ({
       },
     });
 
-    newSocket.on("connect", () => {
+    newSocket.on("connect", async () => {
       console.log("Socket connected:", newSocket.id);
+      try {
+        const rooms = await getMyChatRooms();
+        const roomIds = rooms.map((room) => room.id);
+        newSocket.emit("subscribeToAllRooms", roomIds);
+        console.log("✅ Subscribed to all rooms:", roomIds);
+      } catch (error) {
+        console.error("Failed to subscribe to rooms:", error);
+      }
     });
 
-    // ⭐️ 핵심: 'newMessage' 이벤트 핸들러 중앙화
     newSocket.on("newMessage", (newMessage: ChatMessage) => {
       const roomId = newMessage.chatRoom.id;
+      const { isChatOpen, activeChatRoomId } = get();
 
-      // 1. 메시지 목록 캐시 업데이트
       queryClient.setQueryData<InfiniteMessagesData>(
         QUERY_KEYS.chatKeys.messages(roomId).queryKey,
         (oldData) => {
-          if (!oldData) return oldData;
+          if (!oldData) {
+            return {
+              pages: [{ messages: [newMessage], hasNextPage: true }],
+              pageParams: [1],
+            };
+          }
           const newPages = [...oldData.pages];
-          const latestPage = newPages[0];
+          const latestPage = newPages[0] || {
+            messages: [],
+            hasNextPage: false,
+          };
           newPages[0] = {
             ...latestPage,
             messages: [newMessage, ...latestPage.messages],
@@ -70,7 +90,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
       );
 
-      // 2. 채팅방 목록 캐시 업데이트 (안읽은 개수, 마지막 메시지)
       queryClient.setQueryData<ChatRoom[]>(
         QUERY_KEYS.chatKeys.rooms.queryKey,
         (oldRooms) => {
@@ -79,9 +98,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             .map((room) => {
               if (room.id === roomId) {
                 const isMyMessage = newMessage.sender.id === currentUser?.id;
-                // 현재 채팅방을 보고 있지 않을 때만 unreadCount 증가
-                const isViewingChat =
-                  get().isChatOpen && get().activeChatRoomId === roomId;
+                const isViewingChat = isChatOpen && activeChatRoomId === roomId;
                 return {
                   ...room,
                   lastMessage: newMessage,
@@ -105,31 +122,78 @@ export const useChatStore = create<ChatState>((set, get) => ({
       );
     });
 
+    newSocket.on("typing", ({ nickname, isTyping }) => {
+      const { activeChatRoomId } = get();
+      if (activeChatRoomId) {
+        set((state) => ({
+          typingUsers: {
+            ...state.typingUsers,
+            [activeChatRoomId]: isTyping ? nickname : "",
+          },
+        }));
+      }
+    });
+
     set({ socket: newSocket });
   },
 
-  // 2. 소켓 연결 해제
   disconnect: () => {
     get().socket?.disconnect();
     set({ socket: null });
   },
 
-  // 3. 메시지 전송
   sendMessage: (content) => {
     const { socket, activeChatRoomId } = get();
+    if (!socket || !activeChatRoomId || !content.trim()) return;
+
+    socket.emit(
+      "sendMessage",
+      { roomId: activeChatRoomId, content },
+      (response: { status: string; error?: string; message?: ChatMessage }) => {
+        if (response.status === "ok") {
+          // console.log("Message sent successfully:", response.message);
+        } else {
+          console.error("Message failed to send:", response.error);
+          alert(`메시지 전송에 실패했습니다: ${response.error}`);
+        }
+      }
+    );
+  },
+
+  emitStartTyping: () => {
+    const { socket, activeChatRoomId } = get();
     if (socket && activeChatRoomId) {
-      socket.emit("sendMessage", { roomId: activeChatRoomId, content });
+      socket.emit("startTyping", { roomId: activeChatRoomId });
     }
   },
 
-  // --- 기존 UI 상태 관리 액션 ---
+  emitStopTyping: () => {
+    const { socket, activeChatRoomId } = get();
+    if (socket && activeChatRoomId) {
+      socket.emit("stopTyping", { roomId: activeChatRoomId });
+    }
+  },
+
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
-  openChatRoom: (roomId) => {
-    get().socket?.emit("joinRoom", roomId); // 방에 입장
+
+  openChatRoom: (roomId, queryClient) => {
+    get().markRoomAsRead(roomId, queryClient);
     set({ activeChatRoomId: roomId, isChatOpen: true });
   },
+
   closeChatRoom: () => {
-    get().socket?.emit("leaveRoom", get().activeChatRoomId); // 방에서 퇴장
     set({ activeChatRoomId: null });
+  },
+
+  markRoomAsRead: (roomId, queryClient) => {
+    queryClient.setQueryData<ChatRoom[]>(
+      QUERY_KEYS.chatKeys.rooms.queryKey,
+      (oldRooms) => {
+        if (!oldRooms) return [];
+        return oldRooms.map((room) =>
+          room.id === roomId ? { ...room, unreadCount: 0 } : room
+        );
+      }
+    );
   },
 }));

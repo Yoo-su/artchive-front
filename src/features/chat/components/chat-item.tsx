@@ -51,10 +51,10 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
           }
         );
       }
-      openChatRoom(room.id);
+      openChatRoom(room.id, queryClient);
     } catch (error) {
       console.error("Failed to open chat room:", error);
-      openChatRoom(room.id);
+      openChatRoom(room.id, queryClient);
     } finally {
       setIsOpening(false);
     }
