@@ -1,8 +1,9 @@
 "use client";
 
+import { useQueryClient } from "@tanstack/react-query";
 import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
-import { ArrowLeft, Loader2, SendHorizontal } from "lucide-react";
+import { ArrowLeft, Loader2, LogOut, SendHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
@@ -18,35 +19,47 @@ import { Input } from "@/shared/components/shadcn/input";
 import { useChatStore } from "../stores/use-chat-store";
 import { ChatMessage, ChatRoom as ChatRoomType } from "../types";
 
+const SystemMessageBubble = ({ content }: { content: string }) => (
+  <div className="text-center text-xs text-gray-500 py-2">
+    <span>{content}</span>
+  </div>
+);
+
 const MessageBubble = ({
   message,
   isMine,
 }: {
   message: ChatMessage;
   isMine: boolean;
-}) => (
-  <div
-    className={`flex items-end gap-2 ${
-      isMine ? "justify-end" : "justify-start"
-    }`}
-  >
-    {!isMine && (
-      <Avatar className="h-8 w-8">
-        <AvatarImage src={message.sender.profileImageUrl || ""} />
-        <AvatarFallback>{message.sender.nickname.slice(0, 1)}</AvatarFallback>
-      </Avatar>
-    )}
+}) => {
+  if (!message.sender) {
+    return <SystemMessageBubble content={message.content} />;
+  }
+
+  return (
     <div
-      className={`max-w-[70%] rounded-2xl px-4 py-2 ${
-        isMine
-          ? "bg-violet-600 text-white rounded-br-none"
-          : "bg-gray-100 text-gray-800 rounded-bl-none"
+      className={`flex items-end gap-2 ${
+        isMine ? "justify-end" : "justify-start"
       }`}
     >
-      <p className="text-sm">{message.content}</p>
+      {!isMine && (
+        <Avatar className="h-8 w-8">
+          <AvatarImage src={message.sender.profileImageUrl || ""} />
+          <AvatarFallback>{message.sender.nickname.slice(0, 1)}</AvatarFallback>
+        </Avatar>
+      )}
+      <div
+        className={`max-w-[70%] rounded-2xl px-4 py-2 ${
+          isMine
+            ? "bg-violet-600 text-white rounded-br-none"
+            : "bg-gray-100 text-gray-800 rounded-bl-none"
+        }`}
+      >
+        <p className="text-sm">{message.content}</p>
+      </div>
     </div>
-  </div>
-);
+  );
+};
 
 interface ChatRoomProps {
   room?: ChatRoomType;
@@ -73,7 +86,8 @@ export const ChatRoom = ({
   emitStartTyping,
   emitStopTyping,
 }: ChatRoomProps) => {
-  const { closeChatRoom } = useChatStore();
+  const { closeChatRoom, leaveRoom, isRoomInactive } = useChatStore();
+  const queryClient = useQueryClient();
   const { user: currentUser } = useAuthStore();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -85,6 +99,8 @@ export const ChatRoom = ({
     () => debounce(emitStopTyping, 1500),
     [emitStopTyping]
   );
+
+  const isInactive = isRoomInactive[room?.id ?? -1] || false;
 
   useEffect(() => {
     return () => {
@@ -149,43 +165,61 @@ export const ChatRoom = ({
     emitStopTyping();
   };
 
+  const handleLeaveRoom = () => {
+    if (window.confirm("정말로 이 채팅방을 나가시겠습니까?")) {
+      leaveRoom(queryClient);
+    }
+  };
+
   return (
     <div className="h-full flex flex-col bg-white">
-      <div className="flex items-center gap-4 p-4 border-b flex-shrink-0">
+      <div className="flex items-center justify-between p-4 border-b flex-shrink-0">
+        <div className="flex items-center gap-4 overflow-hidden">
+          <Button
+            variant="ghost"
+            size="icon"
+            className="h-8 w-8"
+            onClick={closeChatRoom}
+          >
+            <ArrowLeft size={20} />
+          </Button>
+          <div className="relative h-10 w-10 flex-shrink-0">
+            <Image
+              src={room.usedBookPost.book.image}
+              alt={room.usedBookPost.book.title}
+              fill
+              className="rounded-md object-cover"
+            />
+          </div>
+          <div className="overflow-hidden">
+            <p className="font-semibold truncate">{opponent?.nickname}</p>
+            <div className="h-5">
+              <AnimatePresence>
+                {typingNickname && (
+                  <motion.p
+                    initial={{ y: -10, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    exit={{ y: 10, opacity: 0 }}
+                    transition={{ duration: 0.2 }}
+                    className="text-xs text-violet-600 truncate"
+                  >
+                    {typingNickname}님이 입력 중...
+                  </motion.p>
+                )}
+              </AnimatePresence>
+            </div>
+          </div>
+        </div>
+
+        {/* ✨ DropdownMenu 제거 후 바로 Button에 onClick 적용 */}
         <Button
           variant="ghost"
           size="icon"
-          className="h-8 w-8"
-          onClick={closeChatRoom}
+          className="h-8 w-8 text-red-500 hover:bg-red-50"
+          onClick={handleLeaveRoom}
         >
-          <ArrowLeft size={20} />
+          <LogOut size={20} />
         </Button>
-        <div className="relative h-10 w-10 flex-shrink-0">
-          <Image
-            src={room.usedBookPost.book.image}
-            alt={room.usedBookPost.book.title}
-            fill
-            className="rounded-md object-cover"
-          />
-        </div>
-        <div className="overflow-hidden">
-          <p className="font-semibold truncate">{opponent?.nickname}</p>
-          <div className="h-5">
-            <AnimatePresence>
-              {typingNickname && (
-                <motion.p
-                  initial={{ y: -10, opacity: 0 }}
-                  animate={{ y: 0, opacity: 1 }}
-                  exit={{ y: 10, opacity: 0 }}
-                  transition={{ duration: 0.2 }}
-                  className="text-xs text-violet-600 truncate"
-                >
-                  {typingNickname}님이 입력 중...
-                </motion.p>
-              )}
-            </AnimatePresence>
-          </div>
-        </div>
       </div>
 
       <div
@@ -202,25 +236,34 @@ export const ChatRoom = ({
           <MessageBubble
             key={message.id}
             message={message}
-            isMine={message.sender.id === currentUser.id}
+            isMine={message.sender?.id === currentUser.id}
           />
         ))}
         <div ref={messagesEndRef} />
       </div>
 
       <div className="p-4 border-t bg-white flex-shrink-0">
-        <form className="flex items-center gap-2" onSubmit={handleSendMessage}>
-          <Input
-            value={newMessage}
-            onChange={handleInputChange}
-            placeholder="메시지를 입력하세요..."
-            autoComplete="off"
-            className="flex-grow"
-          />
-          <Button type="submit" size="icon" disabled={!newMessage.trim()}>
-            <SendHorizontal size={20} />
-          </Button>
-        </form>
+        {isInactive ? (
+          <div className="text-center text-sm text-gray-500 bg-gray-100 p-3 rounded-md">
+            대화가 종료된 채팅방입니다.
+          </div>
+        ) : (
+          <form
+            className="flex items-center gap-2"
+            onSubmit={handleSendMessage}
+          >
+            <Input
+              value={newMessage}
+              onChange={handleInputChange}
+              placeholder="메시지를 입력하세요..."
+              autoComplete="off"
+              className="flex-grow"
+            />
+            <Button type="submit" size="icon" disabled={!newMessage.trim()}>
+              <SendHorizontal size={20} />
+            </Button>
+          </form>
+        )}
       </div>
     </div>
   );

@@ -17,4 +17,5 @@ export const bookKeys = createQueryKeys("book", {
     limit,
   }: UseInfiniteRelatedPostsQueryProps) => [isbn, city, district, limit],
   postDetail: (postId: string) => [postId],
+  recentPosts: null,
 });

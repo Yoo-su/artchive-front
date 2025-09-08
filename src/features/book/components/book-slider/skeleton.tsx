@@ -24,3 +24,23 @@ export const BookSliderSkeleton = () => (
     </div>
   </div>
 );
+
+export const RecentPostsSliderSkeleton = () => {
+  return (
+    <div className="w-full overflow-hidden">
+      <div className="flex gap-8">
+        {Array.from({ length: 5 }).map((_, i) => (
+          <div
+            key={i}
+            className="flex flex-col items-center flex-shrink-0 w-40"
+          >
+            <Skeleton className="w-40 h-40 rounded-full" />
+            <Skeleton className="h-5 w-3/4 mt-4" />
+            <Skeleton className="h-6 w-1/2 mt-2" />
+            <Skeleton className="h-4 w-2/3 mt-2" />
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+};

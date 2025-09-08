@@ -41,3 +41,12 @@ export const markMessagesAsRead = async (roomId: number) => {
   const response = await privateAxios.patch(`/chat/rooms/${roomId}/read`);
   return response.data;
 };
+
+/**
+ * 채팅방을 나가는 API
+ * @param roomId - 나갈 채팅방의 ID
+ */
+export const leaveChatRoom = async (roomId: number) => {
+  const response = await privateAxios.delete(`/chat/rooms/${roomId}`);
+  return response.data;
+};
