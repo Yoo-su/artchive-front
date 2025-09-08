@@ -188,3 +188,11 @@ export const deleteBookPost = async (postId: number) => {
     return { success: false, error };
   }
 };
+
+/**
+ * 최근 등록된 중고책 판매글 목록 조회 API
+ */
+export const getRecentBookPosts = async (): Promise<UsedBookPost[]> => {
+  const response = await publicAxios.get<UsedBookPost[]>("/book/posts/recent");
+  return response.data;
+};

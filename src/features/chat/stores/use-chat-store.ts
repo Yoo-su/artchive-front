@@ -5,7 +5,7 @@ import { create } from "zustand";
 import { useAuthStore } from "@/features/auth/store";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
-import { getMyChatRooms } from "../apis";
+import { getMyChatRooms, leaveChatRoom } from "../apis";
 import { ChatMessage, ChatRoom, GetChatMessagesResponse } from "../types";
 
 type InfiniteMessagesData = {
@@ -18,12 +18,14 @@ interface ChatState {
   isChatOpen: boolean;
   activeChatRoomId: number | null;
   typingUsers: { [roomId: number]: string };
+  isRoomInactive: { [roomId: number]: boolean }; // 채팅방 비활성 상태 추가
 
   connect: (queryClient: QueryClient) => void;
   disconnect: () => void;
   sendMessage: (content: string) => void;
   emitStartTyping: () => void;
   emitStopTyping: () => void;
+  leaveRoom: (queryClient: QueryClient) => void; // 채팅방 나가기 액션 추가
 
   toggleChat: () => void;
   openChatRoom: (roomId: number, queryClient: QueryClient) => void;
@@ -36,6 +38,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isChatOpen: false,
   activeChatRoomId: null,
   typingUsers: {},
+  isRoomInactive: {}, // 초기 상태
 
   connect: (queryClient) => {
     const { accessToken, user: currentUser } = useAuthStore.getState();
@@ -97,7 +100,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           return oldRooms
             .map((room) => {
               if (room.id === roomId) {
-                const isMyMessage = newMessage.sender.id === currentUser?.id;
+                const isMyMessage = newMessage.sender?.id === currentUser?.id;
                 const isViewingChat = isChatOpen && activeChatRoomId === roomId;
                 return {
                   ...room,
@@ -121,6 +124,40 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
       );
     });
+
+    // 'userLeft' 이벤트 리스너 추가
+    newSocket.on(
+      "userLeft",
+      ({ roomId, message }: { roomId: number; message: ChatMessage }) => {
+        // 1. 해당 채팅방의 메시지 목록에 시스템 메시지 추가
+        queryClient.setQueryData<InfiniteMessagesData>(
+          QUERY_KEYS.chatKeys.messages(roomId).queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
+            const newPages = [...oldData.pages];
+            const latestPage = newPages[0] || {
+              messages: [],
+              hasNextPage: false,
+            };
+            newPages[0] = {
+              ...latestPage,
+              messages: [message, ...latestPage.messages],
+            };
+            return { ...oldData, pages: newPages };
+          }
+        );
+
+        // 2. 채팅방 비활성화 상태로 변경
+        set((state) => ({
+          isRoomInactive: { ...state.isRoomInactive, [roomId]: true },
+        }));
+
+        // 3. 채팅방 목록 업데이트 (마지막 메시지 갱신)
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+        });
+      }
+    );
 
     newSocket.on("typing", ({ nickname, isTyping }) => {
       const { activeChatRoomId } = get();
@@ -171,6 +208,36 @@ export const useChatStore = create<ChatState>((set, get) => ({
     const { socket, activeChatRoomId } = get();
     if (socket && activeChatRoomId) {
       socket.emit("stopTyping", { roomId: activeChatRoomId });
+    }
+  },
+
+  // 현재 활성화된 채팅방을 나가는 액션
+  leaveRoom: async (queryClient) => {
+    const { activeChatRoomId, closeChatRoom } = get();
+    if (!activeChatRoomId) return;
+
+    try {
+      await leaveChatRoom(activeChatRoomId);
+
+      // 채팅방 목록에서 해당 방 즉시 제거
+      queryClient.setQueryData<ChatRoom[]>(
+        QUERY_KEYS.chatKeys.rooms.queryKey,
+        (oldRooms) =>
+          oldRooms
+            ? oldRooms.filter((room) => room.id !== activeChatRoomId)
+            : []
+      );
+
+      // 메시지 캐시도 제거
+      queryClient.removeQueries({
+        queryKey: QUERY_KEYS.chatKeys.messages(activeChatRoomId).queryKey,
+      });
+
+      // 현재 열려있는 채팅방 닫기
+      closeChatRoom();
+    } catch (error) {
+      console.error("Failed to leave room:", error);
+      alert("채팅방을 나가는 데 실패했습니다.");
     }
   },
 

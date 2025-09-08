@@ -7,6 +7,7 @@ import {
   getBookList,
   getBookPostDetail,
   getMyBookPosts,
+  getRecentBookPosts,
   getRelatedPosts,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
@@ -120,5 +121,16 @@ export const useInfiniteRelatedPostsQuery = ({
     },
     enabled: !!isbn, // isbn이 있을 때만 쿼리 실행
     staleTime: 0,
+  });
+};
+
+/**
+ *  최근 중고책 판매글 목록을 조회하는 커스텀 훅
+ */
+export const useRecentBookPostsQuery = () => {
+  return useQuery({
+    queryKey: QUERY_KEYS.bookKeys.recentPosts.queryKey,
+    queryFn: getRecentBookPosts,
+    staleTime: 5 * 60 * 1000, // 5분
   });
 };
