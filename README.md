@@ -4,12 +4,9 @@
 
 <br/>
 
-### ✨ **Main Page Preview**
+### 🌐 서비스 바로가기 (Service URL)
 
-| 데스크탑 뷰 (Desktop View)                                                                  | 모바일 뷰 (Mobile View)                                                                   |
-| ------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| ![Desktop-View-1](https://placehold.co/600x400/18181b/ffffff?text=Desktop+Main+Image+1)     | ![Mobile-View-1](https://placehold.co/300x500/18181b/ffffff?text=Mobile+Main+Image+1)     |
-| ![Desktop-View-2](https://placehold.co/600x400/9333ea/ffffff?text=Desktop+Features+Image+2) | ![Mobile-View-2](https://placehold.co/300x500/9333ea/ffffff?text=Mobile+Features+Image+2) |
+**[http://artchive-front-dun.vercel.app](http://artchive-front-dun.vercel.app)**
 
 <br/>
 
@@ -59,11 +56,11 @@ ArtChive는 사용자의 문화 생활과 지식 공유를 돕기 위해 다음�
 
 ---
 
-## 💡 주요 기술적 내용 (Technical Highlights)
+## 💡 주요 기술적 결정 (Technical Highlights)
 
-### 1. Feature-Based Design 아키텍처 도입
+### 1. Feature-Sliced Design (FSD) 아키텍처 도입
 
-프로젝트의 유지보수성과 확장성을 높이기 위해 채택했습니다. `features`, `views`, `shared` 등의 계층으로 코드를 분리하여 관심사를 명확히 하고, 컴포넌트 및 로직의 재사용성을 극대화했습니다.
+프로젝트의 유지보수성과 확장성을 높이기 위해 FSD(Feature-Sliced Design) 아키텍처를 채택했습니다. `features`, `views`, `shared` 등의 계층으로 코드를 분리하여 관심사를 명확히 하고, 컴포넌트 및 로직의 재사용성을 극대화했습니다.
 
 ### 2. 서버 상태와 클라이언트 상태의 분리
 
