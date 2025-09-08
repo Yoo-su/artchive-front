@@ -138,3 +138,13 @@ export interface UseInfiniteRelatedPostsQueryProps {
   district?: string;
   limit?: number;
 }
+
+// 판매글 수정을 위한 타입. 모든 필드는 선택적(optional)입니다.
+export type UpdateBookPostParams = Partial<{
+  title: string;
+  price: number;
+  city: string;
+  district: string;
+  content: string;
+  imageUrls: string[];
+}>;

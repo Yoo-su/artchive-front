@@ -20,11 +20,13 @@ import {
   SelectValue,
 } from "@/shared/components/shadcn/select";
 
-import { useUpdateBookPostStatusMutation } from "../../queries";
+import {
+  useDeleteBookPostMutation,
+  useUpdateBookPostStatusMutation,
+} from "../../mutations";
 import { PostStatus, UsedBookPost } from "../../types";
 import { PostStatusBadge } from "../common/post-status-badge";
 
-// 상태 한글 변환
 const statusToKorean: { [key in PostStatus]: string } = {
   FOR_SALE: "판매중",
   RESERVED: "예약중",
@@ -36,13 +38,28 @@ interface BookPostHistoryItemProps {
 }
 export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
   const { mutate: updateStatus } = useUpdateBookPostStatusMutation();
+  const { mutate: deletePost, isPending: isDeleting } =
+    useDeleteBookPostMutation();
 
   const handleStatusChange = (newStatus: PostStatus) => {
     updateStatus({ postId: post.id, status: newStatus });
   };
 
+  const handleDelete = (event: React.MouseEvent) => {
+    event.stopPropagation();
+    event.preventDefault();
+    if (
+      window.confirm(
+        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다."
+      )
+    ) {
+      deletePost({ postId: post.id, imageUrls: post.imageUrls });
+    }
+  };
+
   const handleDropdownClick = (event: React.MouseEvent) => {
     event.stopPropagation();
+    event.preventDefault();
   };
 
   return (
@@ -69,7 +86,7 @@ export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
                   {post.book.title}
                 </p>
               </div>
-              <div className="flex-shrink-0" onClick={handleDropdownClick}>
+              <div onClick={handleDropdownClick}>
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8">
@@ -77,13 +94,19 @@ export const BookPostHistoryItem = ({ post }: BookPostHistoryItemProps) => {
                     </Button>
                   </DropdownMenuTrigger>
                   <DropdownMenuContent align="end">
-                    <DropdownMenuItem>
-                      <Edit className="mr-2 h-4 w-4" />
-                      <span>수정</span>
+                    <DropdownMenuItem asChild>
+                      <Link href={`/my-page/posts/${post.id}/edit`}>
+                        <Edit className="mr-2 h-4 w-4" />
+                        <span>수정</span>
+                      </Link>
                     </DropdownMenuItem>
-                    <DropdownMenuItem className="text-red-600">
+                    <DropdownMenuItem
+                      className="text-red-600"
+                      onClick={handleDelete}
+                      disabled={isDeleting}
+                    >
                       <Trash2 className="mr-2 h-4 w-4" />
-                      <span>삭제</span>
+                      <span>{isDeleting ? "삭제 중..." : "삭제"}</span>
                     </DropdownMenuItem>
                   </DropdownMenuContent>
                 </DropdownMenu>
