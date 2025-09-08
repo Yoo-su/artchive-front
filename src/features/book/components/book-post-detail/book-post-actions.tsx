@@ -23,6 +23,7 @@ import {
 import { Separator } from "@/shared/components/shadcn/separator";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
+import { useDeleteBookPostMutation } from "../../mutations";
 import { UsedBookPost } from "../../types";
 import { PostStatusBadge } from "../common/post-status-badge";
 
@@ -35,6 +36,8 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
   const [isCreatingChat, setIsCreatingChat] = useState(false);
   const { openChatRoom } = useChatStore();
   const queryClient = useQueryClient();
+  const { mutate: deletePost, isPending: isDeleting } =
+    useDeleteBookPostMutation();
 
   const discountRate =
     Number(post.book.discount) > 0
@@ -44,6 +47,16 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
             100
         )
       : 0;
+
+  const handleDelete = () => {
+    if (
+      window.confirm(
+        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다."
+      )
+    ) {
+      deletePost({ postId: post.id, imageUrls: post.imageUrls });
+    }
+  };
 
   const handleStartChat = async () => {
     setIsCreatingChat(true);
@@ -62,7 +75,6 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Post Main Info */}
       <div>
         <div className="flex items-center gap-2 mb-2">
           <PostStatusBadge status={post.status} />
@@ -101,17 +113,23 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
         </div>
         {isOwner ? (
           <div className="flex gap-2">
-            <Button variant="outline" size="sm">
-              <Edit className="w-4 h-4 mr-2" />
-              수정
+            <Button asChild variant="outline" size="sm">
+              <Link href={`/my-page/posts/${post.id}/edit`}>
+                <Edit className="w-4 h-4 mr-2" />
+                수정
+              </Link>
             </Button>
-            <Button variant="destructive" size="sm">
+            <Button
+              variant="destructive"
+              size="sm"
+              onClick={handleDelete}
+              disabled={isDeleting}
+            >
               <Trash2 className="w-4 h-4 mr-2" />
-              삭제
+              {isDeleting ? "삭제 중..." : "삭제"}
             </Button>
           </div>
         ) : (
-          // 이 버튼의 w-full은 이제 세로로 쌓였을 때 자연스럽게 동작합니다.
           <Button
             size="lg"
             className="w-full sm:w-auto"
@@ -130,12 +148,10 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
 
       <Separator />
 
-      {/* Post Content */}
       <div className="prose max-w-none text-gray-700">
         <p>{post.content}</p>
       </div>
 
-      {/* Book Info Card */}
       <Link href={`/book/${post.book.isbn}/detail`}>
         <Card className="transition-shadow bg-gray-50 hover:shadow-md">
           <CardHeader>

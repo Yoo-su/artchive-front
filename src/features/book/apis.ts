@@ -10,6 +10,7 @@ import {
   GetBookListSuccessResponse,
   GetRelatedPostsParams,
   GetRelatedPostsResponse,
+  UpdateBookPostParams,
   UsedBookPost,
 } from "./types";
 
@@ -151,4 +152,39 @@ export const getRelatedPosts = async ({
     { params }
   );
   return response.data;
+};
+
+/**
+ * 중고책 판매글 수정 API
+ * @param postId - 수정할 판매글 ID
+ * @param payload - 수정할 데이터
+ */
+export const updateBookPost = async ({
+  postId,
+  payload,
+}: {
+  postId: number;
+  payload: UpdateBookPostParams;
+}) => {
+  try {
+    const response = await privateAxios.patch(`/book/posts/${postId}`, payload);
+    return { success: true, data: response.data.data as UsedBookPost };
+  } catch (error) {
+    console.error("Failed to update book post:", error);
+    return { success: false, error };
+  }
+};
+
+/**
+ * 중고책 판매글 삭제 API
+ * @param postId - 삭제할 판매글 ID
+ */
+export const deleteBookPost = async (postId: number) => {
+  try {
+    await privateAxios.delete(`/book/posts/${postId}`);
+    return { success: true };
+  } catch (error) {
+    console.error("Failed to delete book post:", error);
+    return { success: false, error };
+  }
 };

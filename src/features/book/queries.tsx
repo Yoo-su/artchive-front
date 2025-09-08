@@ -1,9 +1,4 @@
-import {
-  useInfiniteQuery,
-  useMutation,
-  useQuery,
-  useQueryClient,
-} from "@tanstack/react-query";
+import { useInfiniteQuery, useQuery } from "@tanstack/react-query";
 
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
@@ -13,13 +8,11 @@ import {
   getBookPostDetail,
   getMyBookPosts,
   getRelatedPosts,
-  updateBookPostStatus,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
 import {
   BookInfo,
   GetBookListParams,
-  UsedBookPost,
   UseInfiniteRelatedPostsQueryProps,
 } from "./types";
 
@@ -87,40 +80,6 @@ export const useMyBookPostsQuery = () => {
     queryFn: async () => {
       const result = await getMyBookPosts();
       return result.data;
-    },
-  });
-};
-
-/**
- * 판매글 상태를 업데이트하는 뮤테이션 훅 (낙관적 업데이트 적용)
- */
-export const useUpdateBookPostStatusMutation = () => {
-  const queryClient = useQueryClient();
-  const queryKey = QUERY_KEYS.bookKeys.myPosts.queryKey;
-
-  return useMutation({
-    mutationFn: updateBookPostStatus,
-    onMutate: async ({ postId, status }) => {
-      await queryClient.cancelQueries({ queryKey });
-      const previousPosts = queryClient.getQueryData<UsedBookPost[]>(queryKey);
-
-      queryClient.setQueryData<UsedBookPost[]>(queryKey, (old) =>
-        old
-          ? old.map((post) =>
-              post.id === postId ? { ...post, status: status as any } : post
-            )
-          : []
-      );
-
-      return { previousPosts };
-    },
-    onError: (err, variables, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(queryKey, context.previousPosts);
-      }
-    },
-    onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
     },
   });
 };
