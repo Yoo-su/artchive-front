@@ -118,3 +118,15 @@
     @apply bg-background text-foreground;
   }
 }
+
+html {
+  /* Firefox */
+  scrollbar-width: none;
+  /* IE and Edge */
+  -ms-overflow-style: none;
+}
+
+/* Webkit (Chrome, Safari) 브라우저를 위한 스타일 */
+html::-webkit-scrollbar {
+  display: none;
+}
