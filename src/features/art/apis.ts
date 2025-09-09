@@ -9,6 +9,7 @@ import {
 import {
   ArtListErrorResponse,
   ArtListSuccessResponse,
+  GetArtDetailResponse,
   GetArtListParams,
 } from "./types";
 
@@ -43,6 +44,26 @@ export const getArtList = async (
 
   if (!response.ok) {
     throw new Error("데이터를 가져올 수 없습니다");
+  }
+
+  return response.json();
+};
+
+/**
+ * 공연/예술 상세 정보 조회 API
+ * @param artId - 공연 ID (mt20id)
+ */
+export const getArtDetail = async (
+  artId: string
+): Promise<GetArtDetailResponse> => {
+  const response = await fetch(`/api/art-detail/${artId}`);
+
+  if (!response.ok) {
+    // 404, 500 등 HTTP 에러 상태를 처리합니다.
+    const errorData = await response.json();
+    throw new Error(
+      errorData.message || "공연 정보를 가져오는 데 실패했습니다."
+    );
   }
 
   return response.json();

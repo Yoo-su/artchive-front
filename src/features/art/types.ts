@@ -52,6 +52,49 @@ export interface ArtItem {
   prfstate: string; // 공연상태
 }
 
+//  공연 상세 정보 관련 타입들
+interface StyUrls {
+  styurl: string | string[]; // 이미지가 하나일 경우 string, 여러 개일 경우 array
+}
+
+interface Relate {
+  relatenm?: string;
+  relateurl: string;
+}
+
+interface Relates {
+  relate: Relate | Relate[]; // 관련 정보가 하나일 경우 object, 여러 개일 경우 array
+}
+
+export interface ArtDetailItem {
+  mt20id: string; // 공연ID
+  prfnm: string; // 공연명
+  prfpdfrom: string; // 공연시작일
+  prfpdto: string; // 공연종료일
+  fcltynm: string; // 공연시설명
+  prfcast: string; // 출연진
+  prfcrew: string; // 제작진
+  prfruntime: string; // 공연시간
+  prfage: string; // 관람연령
+  pcseguidance: string; // 티켓가격
+  poster: string; // 포스터이미지
+  sty: string; // 줄거리
+  genrenm: string; // 장르
+  prfstate: string; // 공연상태
+  openrun: string;
+  styurls?: StyUrls; // 소개이미지 목록
+  mt10id: string; // 공연시설ID
+  dtguidance: string; // 공연시간 안내
+  area: string; // 지역
+  relates?: Relates; // 관련 정보
+}
+
+export interface GetArtDetailResponse {
+  success: boolean;
+  data?: ArtDetailItem;
+  message?: string;
+}
+
 export interface GetArtListParams {
   cpage?: string; // 시작페이지 번호
   rows?: string; // 한번에 가져올 데이터 수
