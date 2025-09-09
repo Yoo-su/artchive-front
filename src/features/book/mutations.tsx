@@ -1,12 +1,12 @@
 "use client";
 
 import { useMutation, useQueryClient } from "@tanstack/react-query";
+import { upload } from "@vercel/blob/client";
 import { useRouter } from "next/navigation";
 
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
 import { deleteImages } from "./actions/delete-action";
-// uploadImages Server Action을 직접 임포트합니다.
 import { uploadImages } from "./actions/upload-action";
 import {
   createBookPost,
@@ -21,21 +21,24 @@ import {
 } from "./types";
 
 interface CreatePostVariables {
-  formData: FormData;
+  imageFiles: File[];
   payload: Omit<CreateBookPostParams, "imageUrls">;
 }
 export const useCreateBookPostMutation = () => {
   const router = useRouter();
 
   return useMutation<UsedBookPost, Error, CreatePostVariables>({
-    // ⭐️ mutationFn 내에서 이미지 업로드와 판매글 생성을 순차적으로 처리
-    mutationFn: async ({ formData, payload }) => {
-      // 1. 이미지 업로드
-      const uploadResult = await uploadImages(formData);
-      if (!uploadResult.success || !uploadResult.blobs) {
-        throw new Error(uploadResult.error || "이미지 업로드에 실패했습니다.");
-      }
-      const imageUrls = uploadResult.blobs.map((blob) => blob.url);
+    mutationFn: async ({ imageFiles, payload }) => {
+      // 1. 클라이언트에서 직접 Vercel Blob으로 이미지 업로드
+      const blobs = await Promise.all(
+        imageFiles.map((file) =>
+          upload(file.name, file, {
+            access: "public",
+            handleUploadUrl: "/api/upload",
+          })
+        )
+      );
+      const imageUrls = blobs.map((blob) => blob.url);
 
       // 2. 업로드된 이미지 URL을 포함하여 판매글 생성 API 호출
       const finalPayload = { ...payload, imageUrls };
