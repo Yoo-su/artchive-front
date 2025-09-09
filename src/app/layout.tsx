@@ -11,6 +11,7 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
 
+import { NavigationButtons } from "@/layouts/common/navigation-buttons";
 import { QueryProvider } from "@/shared/providers";
 import AuthProvider from "@/shared/providers/auth-provider";
 import { ChatProvider } from "@/shared/providers/chat-provider";
@@ -82,6 +83,7 @@ export default function Layout({
           </AuthProvider>
         </NextAuthSessionProvider>
         <Analytics />
+        <NavigationButtons />
       </body>
     </html>
   );
