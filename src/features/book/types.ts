@@ -74,6 +74,7 @@ export interface CreateBookPostParams {
     author: string;
     publisher: string;
     image: string;
+    pubdate: string;
   };
 }
 

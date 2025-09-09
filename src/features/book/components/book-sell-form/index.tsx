@@ -92,10 +92,8 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
     form.setValue("images", dataTransfer.files, { shouldValidate: true });
   };
 
-  // ⭐️ onSubmit 함수가 매우 간결해졌습니다.
   const onSubmit = (data: SellFormValues) => {
-    const formData = new FormData();
-    Array.from(data.images).forEach((file) => formData.append("images", file));
+    const imageFiles = Array.from(data.images);
 
     const payload: Omit<CreateBookPostParams, "imageUrls"> = {
       title: data.title,
@@ -110,11 +108,11 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
         author: bookInfo.author,
         publisher: bookInfo.publisher,
         image: bookInfo.image,
+        pubdate: bookInfo.pubdate,
       },
     };
 
-    // ⭐️ Hook을 호출하여 이미지 업로드 및 데이터 제출을 한번에 처리합니다.
-    mutate({ formData, payload });
+    mutate({ imageFiles, payload });
   };
 
   return (
