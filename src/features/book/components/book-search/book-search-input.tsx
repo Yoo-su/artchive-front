@@ -1,26 +1,34 @@
+// src/features/book/components/book-search/book-search-input.tsx
 "use client";
 
+import debounce from "lodash/debounce";
 import { Search } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 
 import { useBookSearchStore } from "../stores/use-book-search-store";
 
 export const BookSearchInput = () => {
-  const [inputValue, setInputValue] = useState("");
+  const query = useBookSearchStore((state) => state.query);
   const setQuery = useBookSearchStore((state) => state.setQuery);
+  const [inputValue, setInputValue] = useState(query);
 
-  // Debounce 로직: 사용자가 타이핑을 멈추고 500ms가 지나면 검색 실행
+  const debouncedSetQuery = useMemo(
+    () =>
+      debounce((value: string) => {
+        setQuery(value);
+      }, 500), // 500ms (0.5초)의 지연시간 설정
+    [setQuery]
+  );
   useEffect(() => {
-    const handler = setTimeout(() => {
-      setQuery(inputValue);
-    }, 500);
+    debouncedSetQuery(inputValue);
 
+    // 컴포넌트가 언마운트될 때, 예약된 debounce 함수를 취소하여 메모리 누수를 방지합니다.
     return () => {
-      clearTimeout(handler);
+      debouncedSetQuery.cancel();
     };
-  }, [inputValue, setQuery]);
+  }, [inputValue, debouncedSetQuery]);
 
   return (
     <div className="relative mb-8">
