@@ -38,7 +38,7 @@ export default function UserPopover() {
   if (!user) {
     return (
       <Link href="/login">
-        <Button className="bg-white hover:bg-white text-gray-600 border-[0.5px] rounded-full border-gray-100 p-2">
+        <Button className="bg-white cursor-pointer hover:bg-white text-gray-600 border-[0.5px] rounded-full border-gray-100 p-2">
           <LogIn />
           로그인
         </Button>

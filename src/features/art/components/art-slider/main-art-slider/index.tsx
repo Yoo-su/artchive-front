@@ -51,18 +51,15 @@ export const ArtSliderWithChips = ({
 
   return (
     <>
-      {/* ✨ [수정] 칩 리스트를 relative 컨테이너로 감싸 그라데이션 효과를 추가합니다. */}
       <div className="relative">
-        {/* ✨ [수정] justify-center를 제거하여 왼쪽부터 정렬되도록 하고, 좌우 패딩을 추가합니다. */}
-        <div className="flex gap-2 py-2 px-4 sm:px-8 overflow-x-auto scrollbar-hide">
+        <div className="flex justify-start sm:justify-center gap-2 py-2 px-4 sm:px-8 overflow-x-auto scrollbar-hide">
           {chips.map((chip) => (
             <Button
               key={chip.genreCode}
               variant={activeGenre === chip.genreCode ? "default" : "outline"}
               size="sm"
-              // ✨ [수정] 버튼이 줄어들지 않도록 flex-shrink-0 추가
               className={cn(
-                "rounded-full px-4 py-1 transition-all duration-300 flex-shrink-0",
+                "rounded-full cursor-pointer px-4 py-1 transition-all duration-300 flex-shrink-0",
                 activeGenre === chip.genreCode
                   ? "bg-violet-500 text-white shadow-lg scale-105 border-violet-500"
                   : "text-gray-300 bg-white/10 border-white/20 hover:bg-white/20 hover:text-white"
@@ -73,7 +70,6 @@ export const ArtSliderWithChips = ({
             </Button>
           ))}
         </div>
-        {/* ✨ [추가] 스크롤이 가능하다는 것을 알려주는 우측 그라데이션 효과 (데스크탑에서는 숨김) */}
         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-gray-900 pointer-events-none sm:hidden" />
       </div>
 
