@@ -1,6 +1,6 @@
 "use client";
 
-import { Search } from "lucide-react"; // Search 아이콘 임포트
+import { Search } from "lucide-react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -25,7 +25,7 @@ export const DefaultHeader = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="rounded-full text-gray-600 hover:text-gray-900"
+              className="rounded-full cursor-pointer text-gray-600 hover:text-gray-900"
               onClick={() => router.push("/book/search")}
               aria-label="도서 검색 페이지로 이동"
             >

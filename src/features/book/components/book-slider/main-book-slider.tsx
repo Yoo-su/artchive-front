@@ -1,10 +1,10 @@
 "use client";
 
-import { BookOpen,ChevronLeft, ChevronRight } from "lucide-react";
+import { BookOpen, ChevronLeft, ChevronRight } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useEffect, useRef,useState } from "react";
-import { Autoplay,EffectCoverflow, Navigation } from "swiper/modules";
+import { useEffect, useRef, useState } from "react";
+import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 // Shadcn/ui 컴포넌트
@@ -123,7 +123,7 @@ export const MainBookSlider = () => {
           <Button
             key={publisher}
             variant={activePublisher === publisher ? "default" : "outline"}
-            className={`rounded-full transition-all duration-300 ${
+            className={`rounded-full cursor-pointer transition-all duration-300 ${
               activePublisher === publisher
                 ? "bg-violet-600 text-white shadow-lg scale-105"
                 : "text-gray-600 bg-white"
@@ -186,7 +186,6 @@ export const MainBookSlider = () => {
                       alt={book.title}
                       fill
                       sizes="(max-width: 768px) 240px, 300px"
-                      // ✨ [수정됨] w-full, h-full 클래스를 제거하여 fill 속성이 올바르게 동작하도록 합니다.
                       className="object-cover transition-transform duration-500 group-hover:scale-110"
                       onError={(e) => {
                         e.currentTarget.src =
