@@ -3,6 +3,8 @@
 import Image from "next/image";
 import { useState } from "react";
 
+import { Lens } from "@/shared/components/magicui/lens";
+
 import { UsedBookPost } from "../../types";
 
 interface BookPostInfoProps {
@@ -16,9 +18,8 @@ export const BookPostInfo = ({ post }: BookPostInfoProps) => {
 
   return (
     <div className="space-y-6">
-      {/* Image Gallery */}
       <div className="flex flex-col gap-3">
-        <div className="relative w-full overflow-hidden border rounded-lg aspect-square">
+        <Lens className="w-full aspect-square border rounded-lg">
           <Image
             src={mainImage}
             alt={post.title}
@@ -27,7 +28,8 @@ export const BookPostInfo = ({ post }: BookPostInfoProps) => {
             className="object-contain"
             priority
           />
-        </div>
+        </Lens>
+
         <div className="flex gap-2">
           {post.imageUrls.map((url) => (
             <button
