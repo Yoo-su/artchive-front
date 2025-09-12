@@ -1,7 +1,8 @@
+// src/features/book/components/book-post-detail/book-post-actions.tsx
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { Clock,Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -22,6 +23,7 @@ import {
 } from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { formatPostDate } from "@/shared/utils/date";
 
 import { useDeleteBookPostMutation } from "../../mutations";
 import { UsedBookPost } from "../../types";
@@ -38,6 +40,11 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
   const queryClient = useQueryClient();
   const { mutate: deletePost, isPending: isDeleting } =
     useDeleteBookPostMutation();
+
+  // ✨ 수정된 날짜가 있으면 updatedAt, 없으면 createdAt 사용
+  const displayDate =
+    post.updatedAt > post.createdAt ? post.updatedAt : post.createdAt;
+  const dateLabel = post.updatedAt > post.createdAt ? "수정" : "작성";
 
   const discountRate =
     Number(post.book.discount) > 0
@@ -76,11 +83,17 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
   return (
     <div className="space-y-6">
       <div>
-        <div className="flex items-center gap-2 mb-2">
+        <div className="flex items-center flex-wrap gap-x-3 gap-y-1 mb-2 text-sm text-gray-500">
           <PostStatusBadge status={post.status} />
-          <span className="text-sm text-gray-500">
+          <span>
             {post.city} {post.district}
           </span>
+          <div className="flex items-center gap-1">
+            <Clock className="w-3.5 h-3.5" />
+            <span>
+              {dateLabel} {formatPostDate(displayDate)}
+            </span>
+          </div>
         </div>
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
           {post.title}
