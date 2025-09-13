@@ -26,6 +26,7 @@ interface ChatState {
   emitStartTyping: () => void;
   emitStopTyping: () => void;
   leaveRoom: (queryClient: QueryClient) => void; // 채팅방 나가기 액션 추가
+  rejoinRoom: (roomId: number) => void;
 
   toggleChat: () => void;
   openChatRoom: (roomId: number, queryClient: QueryClient) => void;
@@ -125,11 +126,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       );
     });
 
-    // 'userLeft' 이벤트 리스너 추가
     newSocket.on(
       "userLeft",
       ({ roomId, message }: { roomId: number; message: ChatMessage }) => {
-        // 1. 해당 채팅방의 메시지 목록에 시스템 메시지 추가
         queryClient.setQueryData<InfiniteMessagesData>(
           QUERY_KEYS.chatKeys.messages(roomId).queryKey,
           (oldData) => {
@@ -147,12 +146,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
           }
         );
 
-        // 2. 채팅방 비활성화 상태로 변경
         set((state) => ({
           isRoomInactive: { ...state.isRoomInactive, [roomId]: true },
         }));
 
-        // 3. 채팅방 목록 업데이트 (마지막 메시지 갱신)
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
         });
@@ -188,7 +185,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
       { roomId: activeChatRoomId, content },
       (response: { status: string; error?: string; message?: ChatMessage }) => {
         if (response.status === "ok") {
-          // console.log("Message sent successfully:", response.message);
         } else {
           console.error("Message failed to send:", response.error);
           alert(`메시지 전송에 실패했습니다: ${response.error}`);
@@ -211,7 +207,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     }
   },
 
-  // 현재 활성화된 채팅방을 나가는 액션
   leaveRoom: async (queryClient) => {
     const { activeChatRoomId, closeChatRoom } = get();
     if (!activeChatRoomId) return;
@@ -219,7 +214,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     try {
       await leaveChatRoom(activeChatRoomId);
 
-      // 채팅방 목록에서 해당 방 즉시 제거
       queryClient.setQueryData<ChatRoom[]>(
         QUERY_KEYS.chatKeys.rooms.queryKey,
         (oldRooms) =>
@@ -228,17 +222,21 @@ export const useChatStore = create<ChatState>((set, get) => ({
             : []
       );
 
-      // 메시지 캐시도 제거
       queryClient.removeQueries({
         queryKey: QUERY_KEYS.chatKeys.messages(activeChatRoomId).queryKey,
       });
 
-      // 현재 열려있는 채팅방 닫기
       closeChatRoom();
     } catch (error) {
       console.error("Failed to leave room:", error);
       alert("채팅방을 나가는 데 실패했습니다.");
     }
+  },
+
+  rejoinRoom: (roomId) => {
+    set((state) => ({
+      isRoomInactive: { ...state.isRoomInactive, [roomId]: false },
+    }));
   },
 
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
