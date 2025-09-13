@@ -242,6 +242,10 @@ export const useChatStore = create<ChatState>((set, get) => ({
   toggleChat: () => set((state) => ({ isChatOpen: !state.isChatOpen })),
 
   openChatRoom: (roomId, queryClient) => {
+    const { socket } = get();
+    if (socket) {
+      socket.emit("joinRoom", roomId);
+    }
     get().markRoomAsRead(roomId, queryClient);
     set({ activeChatRoomId: roomId, isChatOpen: true });
   },
