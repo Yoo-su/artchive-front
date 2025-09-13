@@ -72,15 +72,16 @@ export const useChatStore = create<ChatState>((set, get) => ({
       const roomId = newMessage.chatRoom.id;
       const { isChatOpen, activeChatRoomId } = get();
 
+      // 1. 메시지 목록 캐시 업데이트 (단, 캐시가 이미 존재할 경우에만)
       queryClient.setQueryData<InfiniteMessagesData>(
         QUERY_KEYS.chatKeys.messages(roomId).queryKey,
         (oldData) => {
+          // ✨ oldData가 없으면(채팅방을 연 적이 없으면) 아무것도 하지 않고 반환합니다.
           if (!oldData) {
-            return {
-              pages: [{ messages: [newMessage], hasNextPage: true }],
-              pageParams: [1],
-            };
+            return oldData;
           }
+
+          // 채팅방을 이전에 열어서 캐시 데이터가 있으면, 새 메시지를 추가합니다.
           const newPages = [...oldData.pages];
           const latestPage = newPages[0] || {
             messages: [],
@@ -94,6 +95,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         }
       );
 
+      // 2. 채팅방 "목록" 캐시는 항상 업데이트합니다 (마지막 메시지, 안 읽은 수 표시).
       queryClient.setQueryData<ChatRoom[]>(
         QUERY_KEYS.chatKeys.rooms.queryKey,
         (oldRooms) => {
