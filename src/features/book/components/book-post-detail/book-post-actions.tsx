@@ -2,7 +2,7 @@
 "use client";
 
 import { useQueryClient } from "@tanstack/react-query";
-import { Clock,Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
+import { Clock, Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 import { useState } from "react";
@@ -36,12 +36,12 @@ interface BookPostActionsProps {
 
 export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const { openChatRoom } = useChatStore();
+  // ✨ [수정] rejoinRoom 액션 가져오기
+  const { openChatRoom, rejoinRoom } = useChatStore();
   const queryClient = useQueryClient();
   const { mutate: deletePost, isPending: isDeleting } =
     useDeleteBookPostMutation();
 
-  // ✨ 수정된 날짜가 있으면 updatedAt, 없으면 createdAt 사용
   const displayDate =
     post.updatedAt > post.createdAt ? post.updatedAt : post.createdAt;
   const dateLabel = post.updatedAt > post.createdAt ? "수정" : "작성";
@@ -69,6 +69,9 @@ export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
     setIsCreatingChat(true);
     try {
       const room = await findOrCreateRoom(post.id);
+
+      rejoinRoom(room.id);
+
       await queryClient.invalidateQueries({
         queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
       });
