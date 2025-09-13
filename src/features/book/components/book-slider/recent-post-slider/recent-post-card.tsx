@@ -15,7 +15,7 @@ export const RecentPostCard = ({ post }: RecentPostCardProps) => {
       className="group block w-full"
       passHref
     >
-      <div className="flex flex-col items-center text-center">
+      <div className="flex flex-col items-center text-center py-4">
         {/* 동그란 이미지 */}
         <div className="relative w-40 h-40 mb-4 transition-transform duration-300 ease-in-out group-hover:scale-105">
           <div className="absolute inset-0 rounded-full bg-gradient-to-tr from-violet-100 to-blue-100 transition-all duration-300 group-hover:inset-[-4px]" />

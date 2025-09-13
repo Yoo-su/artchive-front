@@ -19,7 +19,7 @@ export const BookPostHistoryList = ({ posts }: BookPostHistoryListProps) => {
   }
 
   return (
-    <div className="space-y-4">
+    <div className="flex flex-col gap-2">
       {posts.map((post) => (
         <BookPostHistoryItem key={post.id} post={post} />
       ))}

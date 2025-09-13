@@ -2,6 +2,7 @@ import { Clock } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
+import { BorderBeam } from "@/shared/components/magicui/border-beam";
 import {
   Avatar,
   AvatarFallback,
@@ -15,15 +16,15 @@ import { PostStatusBadge } from "../common/post-status-badge";
 
 interface PostCardProps {
   post: UsedBookPost;
+  idx: number;
 }
-export const PostCard = ({ post }: PostCardProps) => {
-  // ✨ 수정된 날짜가 있으면 updatedAt, 없으면 createdAt 사용
+export const PostCard = ({ post, idx }: PostCardProps) => {
   const displayDate =
     post.updatedAt > post.createdAt ? post.updatedAt : post.createdAt;
 
   return (
     <Link href={`/book/post/${post.id}`} passHref>
-      <Card className="group h-full w-full overflow-hidden duration-300">
+      <Card className="relative group h-full w-full overflow-hidden duration-300 select-none">
         <CardContent className="p-0">
           <div className="relative h-48 w-full overflow-hidden">
             <Image
@@ -42,7 +43,7 @@ export const PostCard = ({ post }: PostCardProps) => {
               className="absolute right-2 top-2"
             />
           </div>
-          <div className="p-4">
+          <div className="p-4 pb-0">
             <h3 className="truncate font-semibold text-gray-800">
               {post.title}
             </h3>
@@ -66,6 +67,7 @@ export const PostCard = ({ post }: PostCardProps) => {
             </div>
           </div>
         </CardContent>
+        <BorderBeam duration={8} delay={idx * 10} />
       </Card>
     </Link>
   );

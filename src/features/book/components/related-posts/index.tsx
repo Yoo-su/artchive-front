@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 
+import { TextAnimate } from "@/shared/components/magicui/text-animate";
 import {
   Select,
   SelectContent,
@@ -48,7 +49,9 @@ export const RelatedPosts = ({ isbn }: RelatedPostsProps) => {
   return (
     <section className="w-full py-12">
       <div className="flex flex-col items-center justify-between gap-4 sm:flex-row">
-        <h2 className="text-2xl font-bold">이 책, 누군가 팔고 있어요!</h2>
+        <TextAnimate animation="blurIn" as="h2" className="text-2xl font-bold">
+          이 책, 누군가 팔고 있어요!
+        </TextAnimate>
         <div className="flex w-full gap-2 sm:w-auto">
           <Select value={city || "all"} onValueChange={handleCityChange}>
             <SelectTrigger className="w-full sm:w-[150px]">
