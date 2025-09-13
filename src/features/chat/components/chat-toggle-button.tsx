@@ -19,7 +19,7 @@ export const ChatToggleButton = () => {
   }, [rooms]);
 
   return (
-    <div className="fixed bottom-6 right-6 z-[1000] transform-gpu">
+    <div className="fixed bottom-4 right-6 z-50">
       <AnimatePresence>
         {totalUnreadCount > 0 && !isChatOpen && (
           <motion.div
