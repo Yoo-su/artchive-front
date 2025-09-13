@@ -34,7 +34,7 @@ export const BookSearchResultList = () => {
   // Case 1: 최초 로딩 상태 (첫 페이지를 불러오는 중)
   if (status === "pending" && isFetching && !isFetchingNextPage) {
     return (
-      <div className="grid grid-cols-3 gap-4 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-4 grid-cols-2 sm:grid-cols-4">
         {Array.from({ length: 10 }).map((_, i) => (
           <BookCard.Skeleton key={i} />
         ))}

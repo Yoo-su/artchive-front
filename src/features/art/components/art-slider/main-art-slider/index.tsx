@@ -1,5 +1,7 @@
 "use client";
 
+import { motion } from "framer-motion";
+import { Theater } from "lucide-react";
 import { useState } from "react";
 import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
@@ -12,6 +14,27 @@ import { cn } from "@/shared/utils";
 import { ArtDomain, Genre, GetArtListParams } from "../../../types";
 import { ArtSliderSkeleton } from "../../skeleton";
 import { MainArtCard } from "./main-art-card";
+
+const NoResults = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    exit={{ opacity: 0, y: -20 }}
+    transition={{ duration: 0.5, ease: "easeInOut" }}
+    className="h-[380px] flex flex-col items-center justify-center text-center text-gray-400"
+  >
+    <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-white/10">
+      <div className="absolute h-full w-full animate-pulse rounded-full bg-violet-400/30 blur-xl"></div>
+      <Theater className="relative z-10 h-10 w-10 text-violet-300" />
+    </div>
+    <p className="mt-6 text-lg font-semibold text-gray-300">
+      앗, 아직 공연 정보가 없어요!
+    </p>
+    <p className="mt-1 text-sm text-gray-500">
+      다른 카테고리를 확인해보시겠어요?
+    </p>
+  </motion.div>
+);
 
 interface MainArtSliderProps {
   title: string;
@@ -27,7 +50,8 @@ export const MainArtSlider = ({
   queryOptions,
 }: MainArtSliderProps) => {
   const [activeGenre, setActiveGenre] = useState<Genre>(chips[0].genreCode);
-  const { data: items, isLoading } = useArtListQuery({
+
+  const { data: items = [], isLoading } = useArtListQuery({
     ...queryOptions,
     genreCode: activeGenre,
   });
@@ -66,12 +90,10 @@ export const MainArtSlider = ({
         <div className="absolute inset-y-0 right-0 w-16 bg-gradient-to-r from-transparent to-gray-900 pointer-events-none sm:hidden" />
       </div>
 
-      {isLoading ? (
-        <div className="mt-4">
+      <div className="mt-4">
+        {isLoading ? (
           <ArtSliderSkeleton />
-        </div>
-      ) : (
-        <div className="mt-4">
+        ) : items.length > 0 ? ( // ✨ [수정] items 배열에 데이터가 있을 때만 Swiper를 렌더링
           <Swiper
             key={activeGenre}
             className="!px-4 sm:!px-8 py-8 w-full"
@@ -79,10 +101,10 @@ export const MainArtSlider = ({
             slidesPerView={"auto"}
             spaceBetween={16}
             centeredSlides={true}
-            loop={items && items.length > 3}
+            loop={items.length > 3}
             autoplay={{ delay: 3000, disableOnInteraction: false }}
           >
-            {items?.map((item) => (
+            {items.map((item) => (
               <SwiperSlide
                 key={item.mt20id}
                 className="!w-[240px] sm:!w-[280px]"
@@ -91,8 +113,10 @@ export const MainArtSlider = ({
               </SwiperSlide>
             ))}
           </Swiper>
-        </div>
-      )}
+        ) : (
+          <NoResults />
+        )}
+      </div>
     </section>
   );
 };
