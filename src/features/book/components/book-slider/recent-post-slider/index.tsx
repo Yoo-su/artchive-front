@@ -10,7 +10,6 @@ import { RecentPostCard } from "./recent-post-card";
 export const RecentPostsSlider = () => {
   const { data: posts, isLoading, isError } = useRecentBookPostsQuery();
 
-  // ✨ [수정] 헤더 부분을 별도의 컴포넌트로 분리하여 재사용
   const SliderHeader = () => (
     <div className="text-center mb-10">
       <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">

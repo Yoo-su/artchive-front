@@ -76,7 +76,7 @@ export const BookSearchResultList = () => {
 
   return (
     <div>
-      <div className="grid grid-cols-3 gap-x-4 gap-y-8 sm:grid-cols-3 md:grid-cols-3 lg:grid-cols-4">
+      <div className="grid gap-x-4 gap-y-8 grid-cols-2 sm:grid-cols-4">
         {data?.pages.flatMap((page, pageIndex) =>
           page.items.map((book, bookIndex) => (
             <BookCard

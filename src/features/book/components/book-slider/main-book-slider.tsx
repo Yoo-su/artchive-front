@@ -7,6 +7,7 @@ import { useEffect, useRef, useState } from "react";
 import { Autoplay, EffectCoverflow, Navigation } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
+import { TextAnimate } from "@/shared/components/magicui/text-animate";
 // Shadcn/ui 컴포넌트
 import { Button } from "@/shared/components/shadcn/button";
 
@@ -109,12 +110,22 @@ export const MainBookSlider = () => {
     <div className="w-full bg-gradient-to-b from-white via-gray-50 to-white py-10">
       <SwiperStyles />
       <div className="mx-auto max-w-5xl px-4 text-center">
-        <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
+        <TextAnimate
+          as="h2"
+          animation="scaleUp"
+          by="line"
+          className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl"
+        >
           주목할 만한 도서
-        </h2>
-        <p className="mt-4 text-lg leading-8 text-gray-600">
+        </TextAnimate>
+        <TextAnimate
+          animation="slideUp"
+          by="word"
+          as="p"
+          className="mt-4 text-lg leading-8 text-gray-600"
+        >
           엄선된 출판사의 베스트셀러를 만나보세요.
-        </p>
+        </TextAnimate>
       </div>
 
       {/* 출판사 필터 칩 */}

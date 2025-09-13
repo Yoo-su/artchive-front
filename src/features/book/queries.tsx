@@ -116,14 +116,13 @@ export const useInfiniteRelatedPostsQuery = ({
     queryFn: ({ pageParam = 1 }) =>
       getRelatedPosts({ isbn, page: pageParam, limit, city, district }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.hasNextPage ? allPages.length + 1 : undefined;
     },
     enabled: !!isbn, // isbn이 있을 때만 쿼리 실행
     staleTime: 0,
   });
 };
-
 /**
  *  최근 중고책 판매글 목록을 조회하는 커스텀 훅
  */

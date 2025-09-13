@@ -5,6 +5,7 @@ import { Autoplay } from "swiper/modules";
 import { Swiper, SwiperSlide } from "swiper/react";
 
 import { useArtListQuery } from "@/features/art/queries";
+import { SparklesText } from "@/shared/components/magicui/sparkles-text";
 import { Button } from "@/shared/components/shadcn/button";
 import { cn } from "@/shared/utils";
 
@@ -34,9 +35,12 @@ export const MainArtSlider = ({
   return (
     <section className="w-full py-16 bg-gray-900 overflow-hidden">
       <div className="text-center mb-10 px-4">
-        <h2 className="text-3xl font-bold tracking-tight text-white sm:text-4xl">
+        <SparklesText
+          className="text-3xl font-bold tracking-tight text-white sm:text-4xl"
+          sparklesCount={7}
+        >
           {title}
-        </h2>
+        </SparklesText>
         <p className="mt-4 text-lg text-gray-300">{subtitle}</p>
       </div>
 
