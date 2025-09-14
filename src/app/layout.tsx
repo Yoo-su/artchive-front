@@ -7,6 +7,7 @@ import "swiper/css/pagination";
 import "swiper/css/navigation";
 
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
@@ -83,6 +84,7 @@ export default function Layout({
           </AuthProvider>
         </NextAuthSessionProvider>
         <Analytics />
+        <SpeedInsights />
         <NavigationButtons />
       </body>
     </html>
