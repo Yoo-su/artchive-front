@@ -78,6 +78,7 @@ NextAuth.js를 프론트엔드 인증 레이어로 활용하여 소셜 로그인
 ---
 
 ## 💻 서비스 화면 (Service Preview)
+
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/f553b0fa-aa35-4f96-9b46-655d3cd876ef" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/68f968a2-fc37-4057-a946-60810b111cd1" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/5d0a8740-5c08-4b3f-933d-81521a2a7fc5" />
@@ -87,7 +88,6 @@ NextAuth.js를 프론트엔드 인증 레이어로 활용하여 소셜 로그인
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/480b5319-9cb1-48e6-965c-68f3c2290258" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b6ad653e-c691-4620-8ed9-7d452d96f248" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/cf3068c5-630c-45bf-b9c3-5aeb9a4d5b28" />
-
 
 
 ---
