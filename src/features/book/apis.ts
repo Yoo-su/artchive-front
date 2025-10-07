@@ -196,3 +196,11 @@ export const getRecentBookPosts = async (): Promise<UsedBookPost[]> => {
   const response = await publicAxios.get<UsedBookPost[]>("/book/posts/recent");
   return response.data;
 };
+
+export const getBookSummary = async (title: string, author: string) => {
+  const response = await publicAxios.post("/llm/book-summary", {
+    title,
+    author,
+  });
+  return response.data;
+};

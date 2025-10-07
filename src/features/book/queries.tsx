@@ -6,6 +6,7 @@ import {
   getBookDetail,
   getBookList,
   getBookPostDetail,
+  getBookSummary,
   getMyBookPosts,
   getRecentBookPosts,
   getRelatedPosts,
@@ -131,5 +132,32 @@ export const useRecentBookPostsQuery = () => {
     queryKey: QUERY_KEYS.bookKeys.recentPosts.queryKey,
     queryFn: getRecentBookPosts,
     staleTime: 5 * 60 * 1000, // 5분
+  });
+};
+
+/**
+ * LLM을 통해 생성된 책 요약/후기 정보를 조회하는 커스텀 훅
+ * @param title - 책 제목
+ * @param author - 저자
+ * @param enabled - 쿼리 자동 실행 여부 (책 정보가 있을 때만 실행)
+ */
+export const useBookSummaryQuery = (
+  title: string,
+  author: string,
+  enabled: boolean
+) => {
+  return useQuery({
+    // title과 author를 queryKey에 포함시켜 책마다 캐시되도록 함
+    queryKey: ["bookSummary", title, author],
+    queryFn: async () => {
+      const result = await getBookSummary(title, author);
+      if (!result.success || !result.data) {
+        throw new Error(result.message || "요약 정보를 가져오지 못했습니다.");
+      }
+      return result.data.summary;
+    },
+    enabled: enabled, // book 데이터 로딩이 완료되었을 때만 이 쿼리를 실행
+    staleTime: Infinity, // 한 번 가져온 요약 정보는 바뀌지 않으므로 fresh 상태 유지
+    retry: false, // 실패 시 자동 재시도 비활성화
   });
 };
