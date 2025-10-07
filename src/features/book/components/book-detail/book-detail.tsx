@@ -10,7 +10,8 @@ import { Badge } from "@/shared/components/shadcn/badge";
 import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
 
-import { useBookDetailQuery } from "../../queries"; // ⬅️ 실제 hook 경로로 수정하세요.
+import { useBookDetailQuery, useBookSummaryQuery } from "../../queries"; // ⬅️ 실제 hook 경로로 수정하세요.
+import { AISummary } from "./ai-summary";
 import { BookDetailError } from "./error";
 import { BookDetailSkeleton } from "./skeleton";
 
@@ -20,6 +21,11 @@ export const BookDetail = () => {
   const { data: sessionData } = useSession();
 
   const { data: book, isLoading, isError } = useBookDetailQuery(isbn);
+  const {
+    data: summary,
+    isLoading: isSummaryLoading,
+    isError: isSummaryError,
+  } = useBookSummaryQuery(book?.title || "", book?.author || "", !!book);
 
   if (isLoading) return <BookDetailSkeleton />;
 
@@ -96,6 +102,13 @@ export const BookDetail = () => {
           </div>
         </div>
       </div>
+
+      <Separator className="my-8" />
+      <AISummary
+        summary={summary}
+        isLoading={isSummaryLoading}
+        isError={isSummaryError}
+      />
     </section>
   );
 };
