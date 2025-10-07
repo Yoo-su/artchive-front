@@ -31,6 +31,9 @@ ArtChive는 사용자의 문화 생활과 지식 공유를 돕기 위해 다음�
   - Socket.IO를 기반으로 메시지 전송, 상대방 입력 상태 표시, 채팅방 나가기 등 필수적인 기능을 구현했습니다.
   - 채팅 위젯을 통해 어느 페이지에서든 채팅 목록을 확인하고 대화를 이어갈 수 있습니다.
 
+- **🤖 AI 도서 요약**
+  - Google Gemini LLM을 연동하여, 책 상세 페이지에서 AI가 생성한 핵심 요약 및 도서 추천 대상 정보를 제공합니다.
+
 - **👤 간편한 소셜 로그인 및 마이페이지**
   - 카카오, 네이버 소셜 로그인을 통해 3초 만에 간편하게 서비스를 시작할 수 있습니다.
   - 마이페이지에서 내가 등록한 판매글 목록을 관리하고, 판매 상태를 손쉽게 변경할 수 있습니다.
@@ -58,9 +61,9 @@ ArtChive는 사용자의 문화 생활과 지식 공유를 돕기 위해 다음�
 
 ## 💡 주요 기술적 내용 (Technical Highlights)
 
-### 1. Feature-Sliced Design (FSD) 아키텍처 도입
+### 1. Feature-Based 아키텍처 도입
 
-프로젝트의 유지보수성과 확장성을 높이기 위해 FSD(Feature-Sliced Design) 아키텍처를 채택했습니다. `features`, `views`, `shared` 등의 계층으로 코드를 분리하여 관심사를 명확히 하고, 컴포넌트 및 로직의 재사용성을 극대화했습니다.
+프로젝트의 유지보수성과 확장성을 높이기 위해 채택했습니다. `features`, `views`, `shared` 등의 계층으로 코드를 분리하여 관심사를 명확히 하고, 컴포넌트 및 로직의 재사용성을 극대화했습니다.
 
 ### 2. 서버 상태와 클라이언트 상태의 분리
 
@@ -75,12 +78,17 @@ NextAuth.js를 프론트엔드 인증 레이어로 활용하여 소셜 로그인
 
 사용자가 업로드하는 이미지는 Next.js의 Server Actions을 통해 Vercel Blob 스토리지에 직접 업로드됩니다. 이를 통해 이미지 처리 로직을 백엔드 API 서버와 분리하여 서버 부하를 줄이고, 프론트엔드와 더 긴밀하게 통합된 파일 업로드 환경을 구축했습니다.
 
+### 5. AI 기반 도서 정보 요약
+
+LLM 모델을 활용하여 책의 핵심 내용을 간결하게 요약해 제공합니다. AI가 책의 주제와 내용을 분석하여 어떤 독자층에게 적합할지 추천해줍니다.
+
 ---
 
 ## 💻 서비스 화면 (Service Preview)
 
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/f553b0fa-aa35-4f96-9b46-655d3cd876ef" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/68f968a2-fc37-4057-a946-60810b111cd1" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/2d584a48-500b-4ca8-9833-fa0cb9428cb4" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/5d0a8740-5c08-4b3f-933d-81521a2a7fc5" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b01cb24c-666d-485c-b3c4-3b2ddaa62944" />
 <img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/9dcca7ad-0041-4108-ac8b-002346d24e53" />
