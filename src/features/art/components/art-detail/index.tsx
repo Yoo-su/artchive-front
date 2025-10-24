@@ -35,7 +35,6 @@ const InfoCard = ({
       <Icon className="w-6 h-6 text-violet-400" />
       <CardTitle className="text-lg font-semibold">{title}</CardTitle>
     </CardHeader>
-    {/* ✨ [수정] break-words 클래스를 추가하여 긴 텍스트가 자동으로 줄바꿈되도록 합니다. */}
     <CardContent className="text-sm break-words">{children}</CardContent>
   </Card>
 );
@@ -68,7 +67,6 @@ export const ArtDetail = ({ art }: ArtDetailProps) => {
           >
             {art.genrenm}
           </Badge>
-          {/* ✨ [수정] 긴 제목도 깨지지 않도록 break-words 추가 */}
           <h1 className="text-4xl md:text-6xl font-black tracking-tighter leading-tight drop-shadow-lg break-words">
             {art.prfnm}
           </h1>

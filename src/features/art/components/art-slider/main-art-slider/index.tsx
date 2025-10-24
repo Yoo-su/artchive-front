@@ -93,7 +93,7 @@ export const MainArtSlider = ({
       <div className="mt-4">
         {isLoading ? (
           <ArtSliderSkeleton />
-        ) : items.length > 0 ? ( // ✨ [수정] items 배열에 데이터가 있을 때만 Swiper를 렌더링
+        ) : items.length > 0 ? (
           <Swiper
             key={activeGenre}
             className="!px-4 sm:!px-8 py-8 w-full"

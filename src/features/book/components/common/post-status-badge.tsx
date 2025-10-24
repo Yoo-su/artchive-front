@@ -35,7 +35,6 @@ export const PostStatusBadge = ({
   const statusInfo = STATUS_INFO[status] || STATUS_INFO.SOLD;
 
   return (
-    // ✨ [수정됨] cn 함수를 사용하여 기본 클래스와 추가 클래스를 병합합니다.
     <Badge variant="default" className={cn(statusInfo.className, className)}>
       {statusInfo.text}
     </Badge>

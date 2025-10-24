@@ -1,4 +1,3 @@
-// src/features/book/components/book-search/book-search-input.tsx
 "use client";
 
 import debounce from "lodash/debounce";
@@ -18,17 +17,21 @@ export const BookSearchInput = () => {
     () =>
       debounce((value: string) => {
         setQuery(value);
-      }, 500), // 500ms (0.5초)의 지연시간 설정
+      }, 500),
     [setQuery]
   );
-  useEffect(() => {
-    debouncedSetQuery(inputValue);
 
-    // 컴포넌트가 언마운트될 때, 예약된 debounce 함수를 취소하여 메모리 누수를 방지합니다.
+  useEffect(() => {
     return () => {
       debouncedSetQuery.cancel();
     };
-  }, [inputValue, debouncedSetQuery]);
+  }, [debouncedSetQuery]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setInputValue(value);
+    debouncedSetQuery(value);
+  };
 
   return (
     <div className="relative mb-8">
@@ -36,7 +39,7 @@ export const BookSearchInput = () => {
       <Input
         type="text"
         value={inputValue}
-        onChange={(e) => setInputValue(e.target.value)}
+        onChange={handleChange}
         placeholder="어떤 책을 찾고 계신가요?"
         className="w-full pl-10 pr-4 py-3 text-lg border-2 rounded-full focus-visible:ring-2 focus-visible:ring-blue-500 focus-visible:ring-offset-2"
       />

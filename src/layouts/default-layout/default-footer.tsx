@@ -18,26 +18,6 @@ export const DefaultFooter = () => {
             <BookHeart className="h-6 w-6 text-violet-500" />
             <span>ArtChive</span>
           </Link>
-          <div className="flex items-center gap-6 text-sm text-gray-500">
-            <Link
-              href="/about"
-              className="transition-colors hover:text-gray-900"
-            >
-              서비스 소개
-            </Link>
-            <Link
-              href="/terms"
-              className="transition-colors hover:text-gray-900"
-            >
-              이용약관
-            </Link>
-            <Link
-              href="/privacy"
-              className="transition-colors hover:text-gray-900"
-            >
-              개인정보처리방침
-            </Link>
-          </div>
         </div>
 
         <Separator className="my-6" />

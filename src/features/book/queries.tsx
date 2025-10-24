@@ -87,7 +87,7 @@ export const useMyBookPostsQuery = () => {
 };
 
 /**
- * ✨ 판매글 ID를 받아 상세 정보를 조회하는 커스텀 쿼리 훅
+ * 판매글 ID를 받아 상세 정보를 조회하는 커스텀 쿼리 훅
  * @param postId - 조회할 판매글의 ID (문자열)
  */
 export const useBookPostDetailQuery = (postId: string) => {

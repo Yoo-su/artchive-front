@@ -211,7 +211,6 @@ export const ChatRoom = ({
           </div>
         </div>
 
-        {/* ✨ DropdownMenu 제거 후 바로 Button에 onClick 적용 */}
         <Button
           variant="ghost"
           size="icon"

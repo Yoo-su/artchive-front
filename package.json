@@ -6,7 +6,9 @@
     "dev": "next dev --turbopack",
     "build": "next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test": "jest",
+    "test:watch": "jest --watch"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.1",
@@ -47,7 +49,13 @@
   },
   "devDependencies": {
     "@eslint/eslintrc": "^3",
+    "@swc/core": "^1.13.5",
+    "@swc/jest": "^0.2.39",
     "@tailwindcss/postcss": "^4.1.11",
+    "@testing-library/jest-dom": "^6.9.1",
+    "@testing-library/react": "^16.3.0",
+    "@testing-library/user-event": "^14.6.1",
+    "@types/jest": "^30.0.0",
     "@types/lodash": "^4.17.20",
     "@types/node": "^20",
     "@types/react": "^19",
@@ -56,6 +64,8 @@
     "eslint-config-next": "15.4.5",
     "eslint-config-prettier": "^10.1.8",
     "eslint-plugin-simple-import-sort": "^12.1.1",
+    "jest": "^30.2.0",
+    "jest-environment-jsdom": "^30.2.0",
     "prettier": "^3.6.2",
     "tailwindcss": "^4.1.11",
     "tw-animate-css": "^1.3.6",
