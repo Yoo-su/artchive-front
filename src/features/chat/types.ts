@@ -6,7 +6,7 @@ export interface ChatMessage {
   content: string;
   isRead: boolean;
   createdAt: string; // ISO 8601
-  sender: PostAuthor | null; // ✨ PostAuthor 또는 null 허용
+  sender: PostAuthor | null;
   chatRoom: { id: number }; // 순환 참조를 피하기 위해 id만 포함
 }
 

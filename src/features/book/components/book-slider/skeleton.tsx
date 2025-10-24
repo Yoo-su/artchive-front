@@ -1,13 +1,7 @@
 import { Skeleton } from "@/shared/components/shadcn/skeleton";
 
-// Swiper 컴포넌트의 실제 구조와 여백을 정확히 모방하여
-// 로딩 전후의 레이아웃 쉬프트(Layout Shift) 현상을 방지합니다.
 export const BookSliderSkeleton = () => (
   <div className="relative w-full book-swiper-container overflow-hidden">
-    {/* ✨ [수정됨] 
-      실제 Swiper 컴포넌트의 `padding: 4rem 0` 스타일(`py-16`)을 동일하게 적용하여
-      스켈레톤과 실제 콘텐츠의 수직 위치를 완벽하게 일치시킵니다.
-    */}
     <div className="py-24">
       <div className="flex justify-center items-center h-[450px]">
         <div className="flex items-center space-x-[-50px]">

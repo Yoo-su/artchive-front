@@ -36,7 +36,6 @@ interface BookPostActionsProps {
 
 export const BookPostActions = ({ post, isOwner }: BookPostActionsProps) => {
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  // ✨ [수정] rejoinRoom 액션 가져오기
   const { openChatRoom, rejoinRoom } = useChatStore();
   const queryClient = useQueryClient();
   const { mutate: deletePost, isPending: isDeleting } =

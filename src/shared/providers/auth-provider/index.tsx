@@ -41,7 +41,6 @@ export default function AuthProvider({
     // status가 'loading'일 때는 아무것도 하지 않고 기다립니다.
   }, [session, status, setAuth, clearAuth, accessToken, isLoading]);
 
-  // ✨ 핵심 로직:
   // NextAuth 세션 로딩이 끝나지 않았거나,
   // 우리 앱의 인증 상태 로딩이 끝나지 않았다면 로더를 보여줍니다.
   if (status === "loading" || isLoading) {

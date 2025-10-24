@@ -35,7 +35,7 @@ import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 
 import { useUpdateBookPostMutation } from "../../mutations";
 import { UpdateBookPostParams, UsedBookPost } from "../../types";
-// ⭐️ 수정 전용 스키마를 임포트합니다.
+
 import { editFormSchema, EditFormValues } from "./schema";
 
 interface BookPostEditFormProps {
@@ -53,7 +53,6 @@ export const BookPostEditForm = ({ post }: BookPostEditFormProps) => {
   const [deletedImages, setDeletedImages] = useState<string[]>([]);
 
   const form = useForm<EditFormValues>({
-    // ⭐️ 수정 전용 스키마를 사용합니다.
     resolver: zodResolver(editFormSchema),
     defaultValues: {
       title: post.title,

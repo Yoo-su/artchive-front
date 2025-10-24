@@ -38,7 +38,6 @@ export const RelatedPostsSlider = ({
           </SwiperSlide>
         ))}
 
-        {/* ✨ [수정] '더보기' 버튼을 SwiperSlide 안으로 이동 및 UI 개선 */}
         {hasNextPage && (
           <SwiperSlide className="!w-[250px] py-8">
             <div className="flex h-[395px] w-full items-center justify-center">

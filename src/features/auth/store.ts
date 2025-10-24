@@ -8,7 +8,7 @@ interface AuthState {
   accessToken: string | null;
   refreshToken: string | null;
   user: User | null;
-  isLoading: boolean; // ✨ 추가: 인증 상태 로딩 여부
+  isLoading: boolean;
   setAuth: (tokens: {
     accessToken: string;
     refreshToken: string;
@@ -44,7 +44,6 @@ export const useAuthStore = create<AuthState>((set, get) => ({
     const { refreshToken } = get();
     if (!refreshToken) {
       console.log("No refresh token available.");
-      // ✨ 리프레시 토큰이 없을 때도 로딩 상태는 종료되어야 합니다.
       set({ isLoading: false });
       return null;
     }
@@ -62,7 +61,7 @@ export const useAuthStore = create<AuthState>((set, get) => ({
         user: get().user!, // user 정보는 그대로 유지
       };
 
-      // ✨ setAuth를 사용하여 isLoading 상태까지 함께 업데이트합니다.
+      // setAuth를 사용하여 isLoading 상태까지 함께 업데이트합니다.
       get().setAuth(newAuthData);
       return newAuthData.accessToken;
     } catch (error) {
