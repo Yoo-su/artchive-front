@@ -35,7 +35,6 @@ import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 
 import { useUpdateBookPostMutation } from "../../mutations";
 import { UpdateBookPostParams, UsedBookPost } from "../../types";
-
 import { editFormSchema, EditFormValues } from "./schema";
 
 interface BookPostEditFormProps {
