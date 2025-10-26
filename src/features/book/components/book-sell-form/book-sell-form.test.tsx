@@ -16,9 +16,9 @@ jest.mock("../../mutations", () => ({
 // Next.js Image 컴포넌트 Mock
 jest.mock("next/image", () => ({
   __esModule: true,
-  default: (props: any) => {
-    // eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element
-    return <img {...props} />;
+  default: ({ src, alt, ...props }: any) => {
+    // eslint-disable-next-line @next/next/no-img-element
+    return <img src={src} alt={alt || ""} {...props} />;
   },
 }));
 
@@ -104,12 +104,12 @@ beforeAll(() => {
       });
     }
 
-    setData(format: string, data: string) {}
-    getData(format: string) {
+    setData(_format: string, _data: string) {}
+    getData(_format: string) {
       return "";
     }
-    clearData(format?: string) {}
-    setDragImage(image: Element, x: number, y: number) {}
+    clearData(_format?: string) {}
+    setDragImage(_image: Element, _x: number, _y: number) {}
   } as any;
 
   // URL.createObjectURL polyfill
