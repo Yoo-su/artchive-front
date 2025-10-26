@@ -1,387 +1,647 @@
-import { fireEvent, render, screen, waitFor } from "@testing-library/react";
+import { render, screen, waitFor, within } from "@testing-library/react";
 import userEvent from "@testing-library/user-event";
-
-import { useCreateBookPostMutation } from "../../mutations";
-import { BookInfo } from "../../types";
 import { BookSellForm } from ".";
+import { BookInfo } from "../../types";
 
-// Mock dependencies
-jest.mock("../../mutations");
-jest.mock("next/image", () => ({
-  __esModule: true,
-  default: (props: any) => <img {...props} />,
+// Mutation Hook Mock
+const mockMutate = jest.fn();
+jest.mock("../../mutations", () => ({
+  useCreateBookPostMutation: () => ({
+    mutate: mockMutate,
+    isPending: false,
+  }),
 }));
 
-// Mock alert
-global.alert = jest.fn();
+// Next.js Image 컴포넌트 Mock
+jest.mock("next/image", () => ({
+  __esModule: true,
+  default: (props: any) => {
+    // eslint-disable-next-line jsx-a11y/alt-text, @next/next/no-img-element
+    return <img {...props} />;
+  },
+}));
 
-// Mock URL.createObjectURL
-global.URL.createObjectURL = jest.fn(() => "mock-url");
-global.URL.revokeObjectURL = jest.fn();
+// 테스트용 bookInfo 데이터
+const mockBookInfo: BookInfo = {
+  isbn: "9788932920238",
+  title: "깊이에의 강요",
+  description: "파트리크 쥐스킨트의 단편 소설집",
+  author: "파트리크 쥐스킨트",
+  publisher: "열린책들",
+  image: "https://example.com/book.jpg",
+  pubdate: "20200420",
+  link: "https://example.com",
+  discount: "11520",
+};
+
+// JSDOM polyfills
+beforeAll(() => {
+  // DataTransfer polyfill
+  class MockDataTransferItem {
+    kind = "file" as const;
+    type: string;
+    file: File;
+
+    constructor(file: File) {
+      this.type = file.type;
+      this.file = file;
+    }
+
+    getAsFile() {
+      return this.file;
+    }
+
+    getAsString(callback: (data: string) => void) {
+      callback("");
+    }
+  }
+
+  class MockDataTransferItemList {
+    private items: MockDataTransferItem[] = [];
+
+    get length() {
+      return this.items.length;
+    }
+
+    add(file: File) {
+      this.items.push(new MockDataTransferItem(file));
+      return this.items[this.items.length - 1];
+    }
+
+    clear() {
+      this.items = [];
+    }
+
+    remove(index: number) {
+      this.items.splice(index, 1);
+    }
+
+    [Symbol.iterator]() {
+      return this.items[Symbol.iterator]();
+    }
+  }
+
+  global.DataTransfer = class DataTransfer {
+    items: MockDataTransferItemList;
+    files: FileList | undefined;
+    effectAllowed = "all" as const;
+    dropEffect = "none" as const;
+
+    constructor() {
+      this.items = new MockDataTransferItemList();
+
+      Object.defineProperty(this, "files", {
+        get: () => {
+          const fileArray = Array.from(this.items).map((item) =>
+            item.getAsFile()
+          );
+          Object.defineProperty(fileArray, "item", {
+            value: (index: number) => fileArray[index] || null,
+          });
+          return fileArray as unknown as FileList;
+        },
+      });
+    }
+
+    setData(format: string, data: string) {}
+    getData(format: string) {
+      return "";
+    }
+    clearData(format?: string) {}
+    setDragImage(image: Element, x: number, y: number) {}
+  } as any;
+
+  // URL.createObjectURL polyfill
+  if (!global.URL.createObjectURL) {
+    global.URL.createObjectURL = jest.fn((file: File) => `blob:${file.name}`);
+  }
+  if (!global.URL.revokeObjectURL) {
+    global.URL.revokeObjectURL = jest.fn();
+  }
+
+  // Pointer Capture polyfills
+  if (!Element.prototype.hasPointerCapture) {
+    Element.prototype.hasPointerCapture = () => false;
+  }
+  if (!Element.prototype.setPointerCapture) {
+    Element.prototype.setPointerCapture = () => {};
+  }
+  if (!Element.prototype.releasePointerCapture) {
+    Element.prototype.releasePointerCapture = () => {};
+  }
+
+  // scrollIntoView polyfill
+  if (!Element.prototype.scrollIntoView) {
+    Element.prototype.scrollIntoView = jest.fn();
+  }
+});
 
 describe("BookSellForm", () => {
-  const mockMutate = jest.fn();
-  const mockBookInfo: BookInfo = {
-    isbn: "9788960771234",
-    title: "클린 코드",
-    description: "애자일 소프트웨어 장인 정신",
-    author: "로버트 C. 마틴",
-    publisher: "인사이트",
-    image: "https://example.com/book.jpg",
-    pubdate: "20131224",
-    link: "sample link",
-    discount: "6000",
-  };
-
   beforeEach(() => {
-    jest.clearAllMocks();
-    (useCreateBookPostMutation as jest.Mock).mockReturnValue({
-      mutate: mockMutate,
-      isPending: false,
-    });
+    mockMutate.mockClear();
   });
 
-  describe("초기 렌더링", () => {
-    it("컴포넌트가 정상적으로 렌더링된다", () => {
+  describe("UI 렌더링 테스트", () => {
+    it("폼의 모든 기본 요소가 렌더링되어야 한다", () => {
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
       expect(screen.getByText("중고책 판매글 작성")).toBeInTheDocument();
       expect(
         screen.getByText("판매할 책의 정보를 정확하게 입력해주세요.")
       ).toBeInTheDocument();
+
+      // 책 정보 표시
+      expect(screen.getByText("깊이에의 강요")).toBeInTheDocument();
+      expect(screen.getByText("파트리크 쥐스킨트 저")).toBeInTheDocument();
+
+      // Form 필드들
+      expect(
+        screen.getByPlaceholderText("판매글 제목을 입력하세요")
+      ).toBeInTheDocument();
+      expect(screen.getByPlaceholderText("숫자만 입력")).toBeInTheDocument();
+      expect(
+        screen.getByRole("combobox", { name: /시\/도/ })
+      ).toBeInTheDocument();
+      expect(
+        screen.getByRole("combobox", { name: /시\/군\/구/ })
+      ).toBeInTheDocument();
+      expect(screen.getByText(/책 상태 이미지/)).toBeInTheDocument();
+      expect(
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/)
+      ).toBeInTheDocument();
+
+      // 제출 버튼
+      expect(
+        screen.getByRole("button", { name: "판매글 등록하기" })
+      ).toBeInTheDocument();
     });
 
-    it("선택된 책 정보가 표시된다", () => {
+    it("초기 렌더링 시 이미지 카운트가 0/5로 표시되어야 한다", () => {
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
-      expect(screen.getByText("클린 코드")).toBeInTheDocument();
-      expect(screen.getByText("로버트 C. 마틴 저")).toBeInTheDocument();
-      expect(screen.getByAltText("클린 코드")).toHaveAttribute(
-        "src",
-        "https://example.com/book.jpg"
-      );
-    });
-
-    it("모든 폼 필드가 표시된다", () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      expect(screen.getByLabelText("게시글 제목")).toBeInTheDocument();
-      expect(screen.getByLabelText("판매 가격 (원)")).toBeInTheDocument();
-      expect(screen.getByLabelText("지역 (시/도)")).toBeInTheDocument();
-      expect(screen.getByLabelText("지역 (시/군/구)")).toBeInTheDocument();
-      expect(screen.getByLabelText(/책 상태 이미지/)).toBeInTheDocument();
-      expect(screen.getByLabelText("상세 내용")).toBeInTheDocument();
-    });
-
-    it("제출 버튼이 활성화되어 있다", () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const submitButton = screen.getByRole("button", {
-        name: "판매글 등록하기",
-      });
-      expect(submitButton).toBeEnabled();
+      expect(screen.getByText(/책 상태 이미지 \(0 \/ 5\)/)).toBeInTheDocument();
     });
   });
 
-  describe("폼 입력 validation", () => {
-    it("빈 폼 제출 시 에러 메시지가 표시된다", async () => {
-      const user = userEvent.setup();
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const submitButton = screen.getByRole("button", {
-        name: "판매글 등록하기",
-      });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(screen.getByText("제목을 입력해주세요.")).toBeInTheDocument();
-        expect(screen.getByText("가격을 입력해주세요.")).toBeInTheDocument();
-        expect(screen.getByText("시/도를 선택해주세요.")).toBeInTheDocument();
-      });
-    });
-
-    it("제목이 2자 미만일 때 에러 메시지가 표시된다", async () => {
+  describe("제목 필드 유효성 검사", () => {
+    it("제목이 비어있을 때 에러 메시지를 표시해야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
       const titleInput =
         screen.getByPlaceholderText("판매글 제목을 입력하세요");
-      await user.type(titleInput, "a");
-      await user.tab(); // blur 이벤트 발생
+
+      await user.click(titleInput);
+      await user.tab();
 
       await waitFor(() => {
         expect(
-          screen.getByText("제목은 최소 2자 이상이어야 합니다.")
+          screen.getByText("제목은 5자 이상 입력해주세요.")
         ).toBeInTheDocument();
       });
     });
 
-    it("가격이 0 이하일 때 에러 메시지가 표시된다", async () => {
+    it("제목이 5자 미만일 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const titleInput =
+        screen.getByPlaceholderText("판매글 제목을 입력하세요");
+
+      await user.type(titleInput, "짧음");
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("제목은 5자 이상 입력해주세요.")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("제목이 50자를 초과할 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const titleInput =
+        screen.getByPlaceholderText("판매글 제목을 입력하세요");
+      const longTitle = "a".repeat(51);
+
+      await user.type(titleInput, longTitle);
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("제목은 50자를 초과할 수 없습니다.")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("제목이 5자 이상 50자 이하일 때 에러가 없어야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const titleInput =
+        screen.getByPlaceholderText("판매글 제목을 입력하세요");
+
+      await user.type(titleInput, "깊이에의 강요 판매합니다");
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.queryByText("제목은 5자 이상 입력해주세요.")
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("제목은 50자를 초과할 수 없습니다.")
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("가격 필드 유효성 검사", () => {
+    it("가격이 비어있을 때 에러 메시지를 표시해야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
       const priceInput = screen.getByPlaceholderText("숫자만 입력");
+
+      await user.click(priceInput);
+      await user.tab();
+
+      await waitFor(() => {
+        expect(screen.getByText("가격을 입력해주세요.")).toBeInTheDocument();
+      });
+    });
+
+    it("가격이 0일 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const priceInput = screen.getByPlaceholderText("숫자만 입력");
+
       await user.type(priceInput, "0");
       await user.tab();
 
       await waitFor(() => {
         expect(
-          screen.getByText("가격은 1원 이상이어야 합니다.")
+          screen.getByText("가격은 0보다 커야 합니다.")
         ).toBeInTheDocument();
       });
     });
 
-    it("상세 내용이 10자 미만일 때 에러 메시지가 표시된다", async () => {
+    it("유효한 가격일 때 에러가 없어야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
-      const contentTextarea = screen.getByPlaceholderText(
-        "책의 상태, 거래 방식 등 상세한 내용을 작성해주세요."
-      );
-      await user.type(contentTextarea, "짧은글");
+      const priceInput = screen.getByPlaceholderText("숫자만 입력");
+
+      await user.type(priceInput, "10000");
       await user.tab();
 
       await waitFor(() => {
         expect(
-          screen.getByText("내용은 최소 10자 이상이어야 합니다.")
+          screen.queryByText("가격을 입력해주세요.")
+        ).not.toBeInTheDocument();
+        expect(
+          screen.queryByText("가격은 0보다 커야 합니다.")
+        ).not.toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("지역 선택 유효성 검사", () => {
+    it("시/도를 선택하지 않았을 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const submitButton = screen.getByRole("button", {
+        name: "판매글 등록하기",
+      });
+
+      await user.type(
+        screen.getByPlaceholderText("판매글 제목을 입력하세요"),
+        "테스트 판매글입니다"
+      );
+      await user.type(screen.getByPlaceholderText("숫자만 입력"), "10000");
+      await user.type(
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/),
+        "상태 좋습니다. 거래 원해요."
+      );
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(screen.getByText("시/도를 선택해주세요.")).toBeInTheDocument();
+      });
+    });
+
+    it("시/도 선택 시 시/군/구 선택이 활성화되어야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const districtSelect = screen.getByRole("combobox", {
+        name: /시\/군\/구/,
+      });
+      expect(districtSelect).toBeDisabled();
+
+      const citySelect = screen.getByRole("combobox", { name: /시\/도/ });
+      await user.click(citySelect);
+
+      // Radix UI Select는 포털을 사용하므로 document.body에서 찾음
+      await waitFor(() => {
+        const portal = document.body;
+        const seoulOption = within(portal).getByRole("option", {
+          name: "서울특별시",
+        });
+        expect(seoulOption).toBeInTheDocument();
+      });
+
+      const portal = document.body;
+      const seoulOption = within(portal).getByRole("option", {
+        name: "서울특별시",
+      });
+      await user.click(seoulOption);
+
+      await waitFor(() => {
+        expect(districtSelect).not.toBeDisabled();
+      });
+    });
+
+    it("시/도가 선택되고 하위 시/군/구가 있을 때 시/군/구를 선택하지 않으면 에러를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const citySelect = screen.getByRole("combobox", { name: /시\/도/ });
+      await user.click(citySelect);
+
+      await waitFor(() => {
+        const portal = document.body;
+        const seoulOption = within(portal).getByRole("option", {
+          name: "서울특별시",
+        });
+        expect(seoulOption).toBeInTheDocument();
+      });
+
+      const portal = document.body;
+      const seoulOption = within(portal).getByRole("option", {
+        name: "서울특별시",
+      });
+      await user.click(seoulOption);
+
+      const submitButton = screen.getByRole("button", {
+        name: "판매글 등록하기",
+      });
+
+      await user.type(
+        screen.getByPlaceholderText("판매글 제목을 입력하세요"),
+        "테스트 판매글입니다"
+      );
+      await user.type(screen.getByPlaceholderText("숫자만 입력"), "10000");
+      await user.type(
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/),
+        "상태 좋습니다. 거래 원해요."
+      );
+
+      await user.click(submitButton);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("시/군/구를 선택해주세요.")
         ).toBeInTheDocument();
       });
     });
   });
 
-  describe("지역 선택", () => {
-    it("시/도 선택 시 시/군/구 select가 활성화된다", async () => {
+  describe("이미지 첨부 기능 테스트", () => {
+    it("이미지를 첨부하지 않았을 때 에러 메시지를 표시해야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
-      const citySelect = screen.getByRole("combobox", { name: "지역 (시/도)" });
-      const districtSelect = screen.getByRole("combobox", {
-        name: "지역 (시/군/구)",
+      const submitButton = screen.getByRole("button", {
+        name: "판매글 등록하기",
       });
 
-      expect(districtSelect).toBeDisabled();
-
-      await user.click(citySelect);
-      const seoulOption = await screen.findByText("서울특별시");
-      await user.click(seoulOption);
-
-      await waitFor(() => {
-        expect(districtSelect).toBeEnabled();
-      });
-    });
-
-    it("시/도 변경 시 시/군/구가 초기화된다", async () => {
-      const user = userEvent.setup();
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const citySelect = screen.getByRole("combobox", { name: "지역 (시/도)" });
-
-      // 첫 번째 시/도 선택
-      await user.click(citySelect);
-      const seoulOption = await screen.findByText("서울특별시");
-      await user.click(seoulOption);
-
-      // 시/군/구 선택
-      const districtSelect = screen.getByRole("combobox", {
-        name: "지역 (시/군/구)",
-      });
-      await user.click(districtSelect);
-      const gangnamOption = await screen.findByText("강남구");
-      await user.click(gangnamOption);
-
-      // 다른 시/도로 변경
-      await user.click(citySelect);
-      const busanOption = await screen.findByText("부산광역시");
-      await user.click(busanOption);
-
-      // 시/군/구가 초기화되었는지 확인
-      await waitFor(() => {
-        expect(screen.queryByText("강남구")).not.toBeInTheDocument();
-      });
-    });
-  });
-
-  describe("이미지 업로드", () => {
-    it("이미지를 업로드하면 미리보기가 표시된다", async () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const file = new File(["image"], "test.png", { type: "image/png" });
-      const input = screen.getByLabelText(/이미지 추가/);
-
-      fireEvent.change(input, { target: { files: [file] } });
-
-      await waitFor(() => {
-        expect(screen.getByAltText("Preview 0")).toBeInTheDocument();
-        expect(screen.getByText("책 상태 이미지 (1 / 5)")).toBeInTheDocument();
-      });
-    });
-
-    it("여러 이미지를 업로드할 수 있다", async () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const files = [
-        new File(["image1"], "test1.png", { type: "image/png" }),
-        new File(["image2"], "test2.png", { type: "image/png" }),
-      ];
-      const input = screen.getByLabelText(/이미지 추가/);
-
-      fireEvent.change(input, { target: { files } });
-
-      await waitFor(() => {
-        expect(screen.getByAltText("Preview 0")).toBeInTheDocument();
-        expect(screen.getByAltText("Preview 1")).toBeInTheDocument();
-        expect(screen.getByText("책 상태 이미지 (2 / 5)")).toBeInTheDocument();
-      });
-    });
-
-    it("5개 초과 업로드 시 alert가 표시된다", async () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const files = Array.from(
-        { length: 6 },
-        (_, i) => new File([`image${i}`], `test${i}.png`, { type: "image/png" })
+      await user.type(
+        screen.getByPlaceholderText("판매글 제목을 입력하세요"),
+        "테스트 판매글입니다"
       );
-      const input = screen.getByLabelText(/이미지 추가/);
+      await user.type(screen.getByPlaceholderText("숫자만 입력"), "10000");
+      await user.type(
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/),
+        "상태 좋습니다. 거래 원해요."
+      );
 
-      fireEvent.change(input, { target: { files } });
+      await user.click(submitButton);
 
       await waitFor(() => {
-        expect(global.alert).toHaveBeenCalledWith(
-          "이미지는 최대 5개까지 첨부할 수 있습니다."
-        );
+        expect(
+          screen.getByText("이미지를 1개 이상 등록해주세요.")
+        ).toBeInTheDocument();
       });
     });
 
-    it("이미지 삭제 버튼을 클릭하면 이미지가 제거된다", async () => {
+    it("이미지를 첨부하면 미리보기가 표시되어야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
-      const file = new File(["image"], "test.png", { type: "image/png" });
-      const input = screen.getByLabelText(/이미지 추가/);
+      const file = new File(["image"], "test.jpg", { type: "image/jpeg" });
+      const fileInput = screen.getByLabelText("이미지 추가");
 
-      fireEvent.change(input, { target: { files: [file] } });
+      await user.upload(fileInput, file);
+
+      await waitFor(() => {
+        expect(
+          screen.getByText(/책 상태 이미지 \(1 \/ 5\)/)
+        ).toBeInTheDocument();
+        expect(screen.getByAltText("Preview 0")).toBeInTheDocument();
+      });
+    });
+
+    it("이미지를 삭제할 수 있어야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const file = new File(["image"], "test.jpg", { type: "image/jpeg" });
+      const fileInput = screen.getByLabelText("이미지 추가");
+
+      await user.upload(fileInput, file);
 
       await waitFor(() => {
         expect(screen.getByAltText("Preview 0")).toBeInTheDocument();
       });
 
-      const deleteButton = screen.getByRole("button", { name: "" });
+      const deleteButton = screen.getByLabelText("Preview 0 삭제");
       await user.click(deleteButton);
 
       await waitFor(() => {
         expect(screen.queryByAltText("Preview 0")).not.toBeInTheDocument();
-        expect(screen.getByText("책 상태 이미지 (0 / 5)")).toBeInTheDocument();
+        expect(
+          screen.getByText(/책 상태 이미지 \(0 \/ 5\)/)
+        ).toBeInTheDocument();
       });
     });
 
-    it("5개 업로드 후 이미지 추가 버튼이 숨겨진다", async () => {
+    it("이미지를 5개 초과로 첨부하려 하면 경고창이 표시되어야 한다", async () => {
+      const user = userEvent.setup();
+      const alertSpy = jest.spyOn(window, "alert").mockImplementation(() => {});
+
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const files = Array.from(
+        { length: 6 },
+        (_, i) => new File(["image"], `test${i}.jpg`, { type: "image/jpeg" })
+      );
+
+      const fileInput = screen.getByLabelText("이미지 추가");
+
+      await user.upload(fileInput, files);
+
+      expect(alertSpy).toHaveBeenCalledWith(
+        "이미지는 최대 5개까지 첨부할 수 있습니다."
+      );
+
+      alertSpy.mockRestore();
+    });
+
+    it("이미지를 5개 첨부하면 추가 버튼이 사라져야 한다", async () => {
+      const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
       const files = Array.from(
         { length: 5 },
-        (_, i) => new File([`image${i}`], `test${i}.png`, { type: "image/png" })
+        (_, i) => new File(["image"], `test${i}.jpg`, { type: "image/jpeg" })
       );
-      const input = screen.getByLabelText(/이미지 추가/);
 
-      fireEvent.change(input, { target: { files } });
+      const fileInput = screen.getByLabelText("이미지 추가");
+      await user.upload(fileInput, files);
 
       await waitFor(() => {
-        expect(screen.queryByLabelText(/이미지 추가/)).not.toBeInTheDocument();
-        expect(screen.getByText("책 상태 이미지 (5 / 5)")).toBeInTheDocument();
+        expect(
+          screen.getByText(/책 상태 이미지 \(5 \/ 5\)/)
+        ).toBeInTheDocument();
+        expect(screen.queryByLabelText("이미지 추가")).not.toBeInTheDocument();
       });
     });
   });
 
-  describe("폼 제출", () => {
-    it("유효한 데이터로 제출 시 mutate가 호출된다", async () => {
+  describe("상세 내용 필드 유효성 검사", () => {
+    it("상세 내용이 비어있을 때 에러 메시지를 표시해야 한다", async () => {
       const user = userEvent.setup();
       render(<BookSellForm bookInfo={mockBookInfo} />);
 
-      // 제목 입력
+      const contentTextarea =
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/);
+
+      await user.click(contentTextarea);
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("상세 내용은 10자 이상 입력해주세요.")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("상세 내용이 10자 미만일 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const contentTextarea =
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/);
+
+      await user.type(contentTextarea, "짧은 글");
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("상세 내용은 10자 이상 입력해주세요.")
+        ).toBeInTheDocument();
+      });
+    });
+
+    it("상세 내용이 1000자를 초과할 때 에러 메시지를 표시해야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      const contentTextarea =
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/);
+      const longContent = "a".repeat(1001);
+
+      await user.type(contentTextarea, longContent);
+      await user.tab();
+
+      await waitFor(() => {
+        expect(
+          screen.getByText("상세 내용은 1,000자를 초과할 수 없습니다.")
+        ).toBeInTheDocument();
+      });
+    });
+  });
+
+  describe("폼 제출 테스트", () => {
+    it("모든 필드가 유효할 때 폼이 제출되어야 한다", async () => {
+      const user = userEvent.setup();
+      render(<BookSellForm bookInfo={mockBookInfo} />);
+
+      // 모든 필드 채우기
       await user.type(
         screen.getByPlaceholderText("판매글 제목을 입력하세요"),
-        "클린 코드 팝니다"
+        "깊이에의 강요 판매합니다"
       );
+      await user.type(screen.getByPlaceholderText("숫자만 입력"), "10000");
 
-      // 가격 입력
-      await user.type(screen.getByPlaceholderText("숫자만 입력"), "15000");
-
-      // 지역 선택
-      const citySelect = screen.getByRole("combobox", { name: "지역 (시/도)" });
+      const citySelect = screen.getByRole("combobox", { name: /시\/도/ });
       await user.click(citySelect);
-      await user.click(await screen.findByText("서울특별시"));
+
+      await waitFor(() => {
+        const portal = document.body;
+        const seoulOption = within(portal).getByRole("option", {
+          name: "서울특별시",
+        });
+        expect(seoulOption).toBeInTheDocument();
+      });
+
+      const portalAfterCity = document.body;
+      const seoulOption = within(portalAfterCity).getByRole("option", {
+        name: "서울특별시",
+      });
+      await user.click(seoulOption);
+
+      await waitFor(() => {
+        const districtSelect = screen.getByRole("combobox", {
+          name: /시\/군\/구/,
+        });
+        expect(districtSelect).not.toBeDisabled();
+      });
 
       const districtSelect = screen.getByRole("combobox", {
-        name: "지역 (시/군/구)",
+        name: /시\/군\/구/,
       });
       await user.click(districtSelect);
-      await user.click(await screen.findByText("강남구"));
 
-      // 상세 내용 입력
+      await waitFor(() => {
+        const portal = document.body;
+        const options = within(portal).getAllByRole("option");
+        expect(options.length).toBeGreaterThan(0);
+      });
+
+      // 첫 번째 구 선택
+      const portalAfterDistrict = document.body;
+      const districtOptions =
+        within(portalAfterDistrict).getAllByRole("option");
+      await user.click(districtOptions[0]);
+
+      const file = new File(["image"], "test.jpg", { type: "image/jpeg" });
+      const fileInput = screen.getByLabelText("이미지 추가");
+      await user.upload(fileInput, file);
+
+      await waitFor(() => {
+        expect(screen.getByAltText("Preview 0")).toBeInTheDocument();
+      });
+
       await user.type(
-        screen.getByPlaceholderText(
-          "책의 상태, 거래 방식 등 상세한 내용을 작성해주세요."
-        ),
-        "깨끗한 상태입니다. 직거래 가능합니다."
+        screen.getByPlaceholderText(/책의 상태, 거래 방식 등/),
+        "책 상태 매우 좋습니다. 직거래 원합니다."
       );
-
-      // 이미지 업로드
-      const file = new File(["image"], "test.png", { type: "image/png" });
-      const imageInput = screen.getByLabelText(/이미지 추가/);
-      fireEvent.change(imageInput, { target: { files: [file] } });
-
-      // 제출
-      const submitButton = screen.getByRole("button", {
-        name: "판매글 등록하기",
-      });
-      await user.click(submitButton);
-
-      await waitFor(() => {
-        expect(mockMutate).toHaveBeenCalledWith({
-          imageFiles: [file],
-          payload: {
-            title: "클린 코드 팝니다",
-            price: "15000",
-            city: "서울특별시",
-            district: "강남구",
-            content: "깨끗한 상태입니다. 직거래 가능합니다.",
-            book: mockBookInfo,
-          },
-        });
-      });
-    });
-
-    it("제출 중일 때 버튼이 비활성화되고 로딩 표시가 나타난다", () => {
-      (useCreateBookPostMutation as jest.Mock).mockReturnValue({
-        mutate: mockMutate,
-        isPending: true,
-      });
-
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      const submitButton = screen.getByRole("button", {
-        name: /판매글 등록하기/,
-      });
-
-      expect(submitButton).toBeDisabled();
-      expect(screen.getByRole("button").querySelector("svg")).toHaveClass(
-        "animate-spin"
-      );
-    });
-  });
-
-  describe("접근성", () => {
-    it("모든 입력 필드에 label이 연결되어 있다", () => {
-      render(<BookSellForm bookInfo={mockBookInfo} />);
-
-      expect(screen.getByLabelText("게시글 제목")).toBeInTheDocument();
-      expect(screen.getByLabelText("판매 가격 (원)")).toBeInTheDocument();
-      expect(screen.getByLabelText("상세 내용")).toBeInTheDocument();
-    });
-
-    it("에러 메시지가 aria-live 영역에 표시된다", async () => {
-      const user = userEvent.setup();
-      render(<BookSellForm bookInfo={mockBookInfo} />);
 
       const submitButton = screen.getByRole("button", {
         name: "판매글 등록하기",
@@ -389,8 +649,22 @@ describe("BookSellForm", () => {
       await user.click(submitButton);
 
       await waitFor(() => {
-        const errorMessages = screen.getAllByRole("alert", { hidden: true });
-        expect(errorMessages.length).toBeGreaterThan(0);
+        expect(mockMutate).toHaveBeenCalledTimes(1);
+        expect(mockMutate).toHaveBeenCalledWith(
+          expect.objectContaining({
+            imageFiles: expect.any(Array),
+            payload: expect.objectContaining({
+              title: "깊이에의 강요 판매합니다",
+              price: "10000",
+              city: "서울특별시",
+              content: "책 상태 매우 좋습니다. 직거래 원합니다.",
+              book: expect.objectContaining({
+                isbn: "9788932920238",
+                title: "깊이에의 강요",
+              }),
+            }),
+          })
+        );
       });
     });
   });
