@@ -249,7 +249,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
               render={() => (
                 <FormItem>
                   <FormLabel>
-                    책 상태 이미지 ({imagePreviews.length} / 5)
+                    {`책 상태 이미지 (${imagePreviews.length} / 5)`}
                   </FormLabel>
                   <FormControl>
                     <div className="flex flex-wrap items-center gap-4">
@@ -265,6 +265,7 @@ export const BookSellForm = ({ bookInfo }: BookSellFormProps) => {
                           <button
                             type="button"
                             onClick={() => removeImage(index)}
+                            aria-label={`Preview ${index} 삭제`}
                             className="absolute top-[-5px] right-[-5px] p-0.5 bg-red-500 rounded-full text-white shadow-md hover:bg-red-600 transition-colors"
                           >
                             <X className="w-3.5 h-3.5" />

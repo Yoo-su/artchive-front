@@ -85,7 +85,7 @@ export default function Layout({
         </NextAuthSessionProvider>
         <Analytics />
         <SpeedInsights />
-        <NavigationButtons />
+        {/*  <NavigationButtons /> */}
       </body>
     </html>
   );
