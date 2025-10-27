@@ -47,7 +47,7 @@ export const useCreateBookPostMutation = () => {
       if (!postResult.success) {
         throw new Error("게시글 등록에 실패했습니다.");
       }
-      return postResult.data;
+      return postResult.post;
     },
     onSuccess: () => {
       alert("판매글이 성공적으로 등록되었습니다.");
@@ -138,10 +138,10 @@ export const useUpdateBookPostMutation = () => {
 
       // 4. 백엔드에 최종 데이터 업데이트 요청
       const result = await updateBookPost({ postId, payload: finalPayload });
-      if (!result.success || !result.data) {
+      if (!result.success || !result.post) {
         throw new Error("게시글 정보 업데이트에 실패했습니다.");
       }
-      return result.data;
+      return result.post;
     },
     onSuccess: (data) => {
       alert("판매글이 성공적으로 수정되었습니다.");
@@ -174,10 +174,7 @@ export const useDeleteBookPostMutation = () => {
         await deleteImages(imageUrls);
       }
       // 2. 백엔드에 게시글 삭제 요청
-      const result = await deleteBookPost(postId);
-      if (!result.success) {
-        throw new Error("게시글 삭제에 실패했습니다.");
-      }
+      await deleteBookPost(postId);
     },
     onSuccess: (_, { postId }) => {
       alert("판매글이 삭제되었습니다.");

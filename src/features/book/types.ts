@@ -149,3 +149,13 @@ export type UpdateBookPostParams = Partial<{
   content: string;
   imageUrls: string[];
 }>;
+
+export type CommonBookPostResponse = {
+  success: boolean;
+  post: UsedBookPost;
+};
+
+export type GetMyBookPostsResponse = {
+  success: boolean;
+  posts: UsedBookPost[];
+};

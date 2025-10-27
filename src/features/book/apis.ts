@@ -2,12 +2,14 @@ import { privateAxios, publicAxios } from "@/shared/libs/axios";
 
 import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "./constants";
 import {
+  CommonBookPostResponse,
   CreateBookPostParams,
   GetBookDetailErrorResponse,
   GetBookDetailSuccessResponse,
   GetBookListErrorResponse,
   GetBookListParams,
   GetBookListSuccessResponse,
+  GetMyBookPostsResponse,
   GetRelatedPostsParams,
   GetRelatedPostsResponse,
   UpdateBookPostParams,
@@ -70,30 +72,24 @@ export const getBookDetail = async (
  * @param payload
  * @returns
  */
-export const createBookPost = async (payload: CreateBookPostParams) => {
-  try {
-    const response = await privateAxios.post("/book/sell", payload);
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Failed to create book post:", error);
-    return { success: false, error };
-  }
+export const createBookPost = async (
+  payload: CreateBookPostParams
+): Promise<CommonBookPostResponse> => {
+  const { data } = await privateAxios.post<CommonBookPostResponse>(
+    "/book/sell",
+    payload
+  );
+
+  return data;
 };
 
 /**
  * 내가 등록한 중고책 판매글 목록 조회 API
  */
-export const getMyBookPosts = async (): Promise<{
-  success: boolean;
-  data: UsedBookPost[];
-}> => {
-  try {
-    const response = await privateAxios.get("/user/my-posts");
-    return { success: true, data: response.data.data };
-  } catch (error) {
-    console.error("Failed to fetch my book posts:", error);
-    throw error;
-  }
+export const getMyBookPosts = async (): Promise<GetMyBookPostsResponse> => {
+  const { data } =
+    await privateAxios.get<GetMyBookPostsResponse>("/user/my-posts");
+  return data;
 };
 
 /**
@@ -105,16 +101,14 @@ export const updateBookPostStatus = async ({
 }: {
   postId: number;
   status: string;
-}): Promise<{ success: boolean; data: UsedBookPost }> => {
-  try {
-    const response = await privateAxios.patch(`/book/posts/${postId}/status`, {
+}): Promise<CommonBookPostResponse> => {
+  const { data } = await privateAxios.patch<CommonBookPostResponse>(
+    `/book/posts/${postId}/status`,
+    {
       status,
-    });
-    return { success: true, data: response.data.data };
-  } catch (error) {
-    console.error("Failed to update book post status:", error);
-    throw error;
-  }
+    }
+  );
+  return data;
 };
 
 /** 특정 판매글 상세 정보 조회 API */
@@ -166,13 +160,11 @@ export const updateBookPost = async ({
   postId: number;
   payload: UpdateBookPostParams;
 }) => {
-  try {
-    const response = await privateAxios.patch(`/book/posts/${postId}`, payload);
-    return { success: true, data: response.data.data as UsedBookPost };
-  } catch (error) {
-    console.error("Failed to update book post:", error);
-    return { success: false, error };
-  }
+  const { data } = await privateAxios.patch<CommonBookPostResponse>(
+    `/book/posts/${postId}`,
+    payload
+  );
+  return data;
 };
 
 /**
@@ -180,27 +172,21 @@ export const updateBookPost = async ({
  * @param postId - 삭제할 판매글 ID
  */
 export const deleteBookPost = async (postId: number) => {
-  try {
-    await privateAxios.delete(`/book/posts/${postId}`);
-    return { success: true };
-  } catch (error) {
-    console.error("Failed to delete book post:", error);
-    return { success: false, error };
-  }
+  await privateAxios.delete(`/book/posts/${postId}`);
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록 조회 API
  */
 export const getRecentBookPosts = async (): Promise<UsedBookPost[]> => {
-  const response = await publicAxios.get<UsedBookPost[]>("/book/posts/recent");
-  return response.data;
+  const { data } = await publicAxios.get<UsedBookPost[]>("/book/posts/recent");
+  return data;
 };
 
 export const getBookSummary = async (title: string, author: string) => {
-  const response = await publicAxios.post("/llm/book-summary", {
+  const { data } = await publicAxios.post("/llm/book-summary", {
     title,
     author,
   });
-  return response.data;
+  return data;
 };
