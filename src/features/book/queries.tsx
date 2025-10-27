@@ -81,7 +81,7 @@ export const useMyBookPostsQuery = () => {
     queryKey: QUERY_KEYS.bookKeys.myPosts.queryKey,
     queryFn: async () => {
       const result = await getMyBookPosts();
-      return result.data;
+      return result.posts;
     },
   });
 };
