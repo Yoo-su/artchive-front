@@ -1,3 +1,4 @@
+import { internalAxios, publicAxios } from "@/shared/libs/axios";
 import { getSimpleDate } from "@/shared/utils/date";
 
 import {
@@ -39,14 +40,10 @@ export const getArtList = async (
   searchParams.set("endDate", endDateStr);
   searchParams.set("signgucode", params.signgucode ?? DEFAULT_CITY_CODE);
 
-  const url = `/api/art-list?${searchParams.toString()}`;
-  const response = await fetch(url);
+  const url = `/art-list?${searchParams.toString()}`;
+  const { data } = await internalAxios.get(url);
 
-  if (!response.ok) {
-    throw new Error("데이터를 가져올 수 없습니다");
-  }
-
-  return response.json();
+  return data;
 };
 
 /**
@@ -56,15 +53,7 @@ export const getArtList = async (
 export const getArtDetail = async (
   artId: string
 ): Promise<GetArtDetailResponse> => {
-  const response = await fetch(`/api/art-detail/${artId}`);
+  const { data } = await internalAxios.get(`/art-detail/${artId}`);
 
-  if (!response.ok) {
-    // 404, 500 등 HTTP 에러 상태를 처리합니다.
-    const errorData = await response.json();
-    throw new Error(
-      errorData.message || "공연 정보를 가져오는 데 실패했습니다."
-    );
-  }
-
-  return response.json();
+  return data;
 };

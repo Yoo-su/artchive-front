@@ -95,10 +95,8 @@ export const useBookPostDetailQuery = (postId: string) => {
     queryKey: QUERY_KEYS.bookKeys.postDetail(postId).queryKey,
     queryFn: async () => {
       const result = await getBookPostDetail(postId);
-      if (!result.success || !result.data) {
-        throw new Error("판매글 정보를 불러오는 데 실패했습니다.");
-      }
-      return result.data;
+
+      return result;
     },
     // postId가 유효한 문자열일 경우에만 쿼리를 실행합니다.
     enabled: !!postId,
