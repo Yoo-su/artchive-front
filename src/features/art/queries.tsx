@@ -28,8 +28,6 @@ export const useArtDetailQuery = (artId: string) => {
     queryFn: async () => {
       const result = await getArtDetail(artId);
       if (!result.success || !result.data) {
-        // API 함수에서 에러를 throw하므로, 여기서는 null을 반환하여
-        // React Query의 isError 상태로 관리되도록 합니다.
         return null;
       }
       return result.data;

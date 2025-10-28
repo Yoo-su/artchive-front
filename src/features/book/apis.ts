@@ -1,4 +1,4 @@
-import { privateAxios, publicAxios } from "@/shared/libs/axios";
+import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
 
 import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "./constants";
 import {
@@ -24,25 +24,21 @@ import {
 export const getBookList = async (
   params: GetBookListParams
 ): Promise<GetBookListSuccessResponse | GetBookListErrorResponse> => {
-  const searchParams = new URLSearchParams();
-
   const displayParam = (params.display ?? DEFAULT_DISPLAY).toString();
   const startParam = (params.start ?? DEFAULT_START).toString();
   const sortParam = params.sort ?? DEFAULT_SORT;
 
-  searchParams.set("query", params.query);
-  searchParams.set("display", displayParam);
-  searchParams.set("start", startParam);
-  searchParams.set("sort", sortParam);
+  const url = "/book-list";
+  const { data } = await internalAxios.get(url, {
+    params: {
+      query: params.query,
+      display: displayParam,
+      start: startParam,
+      sort: sortParam,
+    },
+  });
 
-  const url = `/api/book-list?${searchParams.toString()}`;
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("데이터를 가져올 수 없습니다");
-  }
-
-  return response.json();
+  return data;
 };
 
 /**
@@ -53,18 +49,14 @@ export const getBookList = async (
 export const getBookDetail = async (
   isbn: string
 ): Promise<GetBookDetailSuccessResponse | GetBookDetailErrorResponse> => {
-  const searchParams = new URLSearchParams();
+  const url = "/book-detail";
+  const { data } = await internalAxios.get(url, {
+    params: {
+      isbn,
+    },
+  });
 
-  searchParams.set("isbn", isbn);
-
-  const url = `/api/book-detail?${searchParams.toString()}`;
-  const response = await fetch(url);
-
-  if (!response.ok) {
-    throw new Error("데이터를 가져올 수 없습니다");
-  }
-
-  return response.json();
+  return data;
 };
 
 /**
@@ -113,15 +105,8 @@ export const updateBookPostStatus = async ({
 
 /** 특정 판매글 상세 정보 조회 API */
 export const getBookPostDetail = async (postId: string) => {
-  try {
-    const response = await publicAxios.get<UsedBookPost>(
-      `/book/posts/${postId}`
-    );
-    return { success: true, data: response.data };
-  } catch (error) {
-    console.error("Failed to fetch book post detail:", error);
-    return { success: false, data: null };
-  }
+  const { data } = await publicAxios.get<UsedBookPost>(`/book/posts/${postId}`);
+  return data;
 };
 
 /**

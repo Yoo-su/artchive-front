@@ -15,6 +15,10 @@ export const privateAxios = axios.create({
   baseURL,
 });
 
+export const internalAxios = axios.create({
+  baseURL: "/api",
+});
+
 // privateAxios에만 인터셉터 적용
 privateAxios.interceptors.request.use(
   (config) => {
