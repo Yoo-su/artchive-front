@@ -1,0 +1,18 @@
+export const API_URLS = {
+  ART_LIST: "/api/art-list",
+  ART_DETAIL: (id: string) => `/api/art-detail/${id}`,
+  BOOK_LIST: "/api/book-list",
+  BOOK_DETAIL: "/api/book-detail",
+  UPLOAD: "/api/upload",
+  AUTH_REFRESH: "/api/auth/refresh",
+  BOOK_SALE: "/api/book/sale",
+  MY_SALES: "/api/user/my-sales",
+  BOOK_SALE_STATUS: (saleId: number) => `/api/book/sales/${saleId}/status`,
+  BOOK_SALE_DETAIL: (saleId: string) => `/api/book/sales/${saleId}`,
+  RELATED_SALES: (isbn: string) => `/api/book/${isbn}/sales`,
+  RECENT_BOOK_SALES: "/api/book/sales/recent",
+  BOOK_SUMMARY: "/api/llm/book-summary",
+  CHAT_ROOMS: "/api/chat/rooms",
+  CHAT_MESSAGES: (roomId: number) => `/api/chat/rooms/${roomId}/messages`,
+  CHAT_READ: (roomId: number) => `/api/chat/rooms/${roomId}/read`,
+} as const;

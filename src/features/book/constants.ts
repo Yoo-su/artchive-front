@@ -11,3 +11,5 @@ export const MAIN_PUBLISHERS = [
   "다산책방",
   "책세상",
 ];
+
+export const RECENT_BOOKS_KEY = "recentBooks";

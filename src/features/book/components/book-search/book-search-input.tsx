@@ -6,7 +6,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import { Input } from "@/shared/components/shadcn/input";
 
-import { useBookSearchStore } from "../stores/use-book-search-store";
+import { useBookSearchStore } from "../../stores/use-book-search-store";
 
 export const BookSearchInput = () => {
   const query = useBookSearchStore((state) => state.query);

@@ -4,6 +4,7 @@ import { Heart, PenSquare } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
 import { useSession } from "next-auth/react";
+import { useEffect } from "react";
 
 // Shadcn/ui 컴포넌트
 import { Badge } from "@/shared/components/shadcn/badge";
@@ -11,6 +12,7 @@ import { Button } from "@/shared/components/shadcn/button";
 import { Separator } from "@/shared/components/shadcn/separator";
 
 import { useBookDetailQuery, useBookSummaryQuery } from "../../queries"; // ⬅️ 실제 hook 경로로 수정하세요.
+import { useRecentBookStore } from "../../stores/use-recent-book-store";
 import { AISummary } from "./ai-summary";
 import { BookDetailError } from "./error";
 import { BookDetailSkeleton } from "./skeleton";
@@ -20,7 +22,15 @@ export const BookDetail = () => {
   const isbn = params.isbn as string;
   const { data: sessionData } = useSession();
 
-  const { data: book, isLoading, isError } = useBookDetailQuery(isbn);
+  const { data: book, isLoading, isError, isSuccess } = useBookDetailQuery(isbn);
+  const addRecentBook = useRecentBookStore((state) => state.addRecentBook);
+
+  useEffect(() => {
+    if (isSuccess && book) {
+      addRecentBook(book);
+    }
+  }, [isSuccess, book, addRecentBook]);
+
   const {
     data: summary,
     isLoading: isSummaryLoading,
