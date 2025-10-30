@@ -9,25 +9,25 @@ import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { deleteImages } from "./actions/delete-action";
 import { uploadImages } from "./actions/upload-action";
 import {
-  createBookPost,
-  deleteBookPost,
-  updateBookPost,
-  updateBookPostStatus,
+  createBookSale,
+  deleteBookSale,
+  updateBookSale,
+  updateBookSaleStatus,
 } from "./apis";
 import {
-  CreateBookPostParams,
-  UpdateBookPostParams,
-  UsedBookPost,
+  CreateBookSaleParams,
+  UpdateBookSaleParams,
+  UsedBookSale,
 } from "./types";
 
-interface CreatePostVariables {
+interface CreateSaleVariables {
   imageFiles: File[];
-  payload: Omit<CreateBookPostParams, "imageUrls">;
+  payload: Omit<CreateBookSaleParams, "imageUrls">;
 }
-export const useCreateBookPostMutation = () => {
+export const useCreateBookSaleMutation = () => {
   const router = useRouter();
 
-  return useMutation<UsedBookPost, Error, CreatePostVariables>({
+  return useMutation<UsedBookSale, Error, CreateSaleVariables>({
     mutationFn: async ({ imageFiles, payload }) => {
       // 1. 클라이언트에서 직접 Vercel Blob으로 이미지 업로드
       const blobs = await Promise.all(
@@ -42,16 +42,16 @@ export const useCreateBookPostMutation = () => {
 
       // 2. 업로드된 이미지 URL을 포함하여 판매글 생성 API 호출
       const finalPayload = { ...payload, imageUrls };
-      const postResult = await createBookPost(finalPayload);
+      const saleResult = await createBookSale(finalPayload);
 
-      if (!postResult.success) {
+      if (!saleResult.success) {
         throw new Error("게시글 등록에 실패했습니다.");
       }
-      return postResult.post;
+      return saleResult.sale;
     },
     onSuccess: () => {
       alert("판매글이 성공적으로 등록되었습니다.");
-      router.push("/my-page/posts");
+      router.push("/my-page/sales");
     },
     onError: (error) => {
       console.error("Submission failed:", error);
@@ -63,29 +63,29 @@ export const useCreateBookPostMutation = () => {
 /**
  * 판매글 상태를 업데이트하는 뮤테이션 훅 (낙관적 업데이트 적용)
  */
-export const useUpdateBookPostStatusMutation = () => {
+export const useUpdateBookSaleStatusMutation = () => {
   const queryClient = useQueryClient();
-  const queryKey = QUERY_KEYS.bookKeys.myPosts.queryKey;
+  const queryKey = QUERY_KEYS.bookKeys.mySales.queryKey;
 
   return useMutation({
-    mutationFn: updateBookPostStatus,
-    onMutate: async ({ postId, status }) => {
+    mutationFn: updateBookSaleStatus,
+    onMutate: async ({ saleId, status }) => {
       await queryClient.cancelQueries({ queryKey });
-      const previousPosts = queryClient.getQueryData<UsedBookPost[]>(queryKey);
+      const previousSales = queryClient.getQueryData<UsedBookSale[]>(queryKey);
 
-      queryClient.setQueryData<UsedBookPost[]>(queryKey, (old) =>
+      queryClient.setQueryData<UsedBookSale[]>(queryKey, (old) =>
         old
-          ? old.map((post) =>
-              post.id === postId ? { ...post, status: status as any } : post
+          ? old.map((sale) =>
+              sale.id === saleId ? { ...sale, status: status as any } : sale
             )
           : []
       );
 
-      return { previousPosts };
+      return { previousSales };
     },
     onError: (err, variables, context) => {
-      if (context?.previousPosts) {
-        queryClient.setQueryData(queryKey, context.previousPosts);
+      if (context?.previousSales) {
+        queryClient.setQueryData(queryKey, context.previousSales);
       }
     },
     onSettled: () => {
@@ -97,20 +97,20 @@ export const useUpdateBookPostStatusMutation = () => {
 /**
  * 중고책 판매글 수정을 위한 Mutation Hook
  */
-interface UpdatePostVariables {
-  postId: number;
-  payload: UpdateBookPostParams;
+interface UpdateSaleVariables {
+  saleId: number;
+  payload: UpdateBookSaleParams;
   newImageFiles?: File[];
   deletedImageUrls?: string[];
 }
 
-export const useUpdateBookPostMutation = () => {
+export const useUpdateBookSaleMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
 
-  return useMutation<UsedBookPost, Error, UpdatePostVariables>({
+  return useMutation<UsedBookSale, Error, UpdateSaleVariables>({
     mutationFn: async ({
-      postId,
+      saleId,
       payload,
       newImageFiles = [],
       deletedImageUrls = [],
@@ -137,22 +137,22 @@ export const useUpdateBookPostMutation = () => {
       const finalPayload = { ...payload, imageUrls: finalImageUrls };
 
       // 4. 백엔드에 최종 데이터 업데이트 요청
-      const result = await updateBookPost({ postId, payload: finalPayload });
-      if (!result.success || !result.post) {
+      const result = await updateBookSale({ saleId, payload: finalPayload });
+      if (!result.success || !result.sale) {
         throw new Error("게시글 정보 업데이트에 실패했습니다.");
       }
-      return result.post;
+      return result.sale;
     },
     onSuccess: (data) => {
       alert("판매글이 성공적으로 수정되었습니다.");
       // 관련 쿼리들을 무효화하여 최신 데이터로 갱신
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.myPosts.queryKey,
+        queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
       });
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.postDetail(String(data.id)).queryKey,
+        queryKey: QUERY_KEYS.bookKeys.saleDetail(String(data.id)).queryKey,
       });
-      router.push("/my-page/posts");
+      router.push("/my-page/sales");
     },
     onError: (error) => {
       alert(`수정 중 오류가 발생했습니다: ${error.message}`);
@@ -163,27 +163,27 @@ export const useUpdateBookPostMutation = () => {
 /**
  * 중고책 판매글 삭제를 위한 Mutation Hook
  */
-export const useDeleteBookPostMutation = () => {
+export const useDeleteBookSaleMutation = () => {
   const queryClient = useQueryClient();
   const router = useRouter();
 
-  return useMutation<void, Error, { postId: number; imageUrls: string[] }>({
-    mutationFn: async ({ postId, imageUrls }) => {
+  return useMutation<void, Error, { saleId: number; imageUrls: string[] }>({
+    mutationFn: async ({ saleId, imageUrls }) => {
       // 1. Vercel Blob에 저장된 이미지들 삭제
       if (imageUrls.length > 0) {
         await deleteImages(imageUrls);
       }
       // 2. 백엔드에 게시글 삭제 요청
-      await deleteBookPost(postId);
+      await deleteBookSale(saleId);
     },
-    onSuccess: (_, { postId }) => {
+    onSuccess: (_, { saleId }) => {
       alert("판매글이 삭제되었습니다.");
       queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.myPosts.queryKey,
+        queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
       });
       // 현재 페이지가 삭제된 게시글 상세 페이지일 경우 홈으로 이동
-      if (window.location.pathname.includes(`/book/post/${postId}`)) {
-        router.push("/my-page/posts");
+      if (window.location.pathname.includes(`/book/sale/${saleId}`)) {
+        router.push("/my-page/sales");
       }
     },
     onError: (error) => {

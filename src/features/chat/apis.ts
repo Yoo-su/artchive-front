@@ -4,10 +4,10 @@ import { ChatRoom, GetChatMessagesResponse } from "./types";
 
 /**
  * 특정 판매글에 대한 채팅방을 찾거나 생성하는 API
- * @param postId - 판매글 ID
+ * @param saleId - 판매글 ID
  */
-export const findOrCreateRoom = async (postId: number): Promise<ChatRoom> => {
-  const response = await privateAxios.post<ChatRoom>("/chat/rooms", { postId });
+export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
+  const response = await privateAxios.post<ChatRoom>("/chat/rooms", { saleId });
   return response.data;
 };
 

@@ -185,8 +185,8 @@ export const ChatRoom = ({
           </Button>
           <div className="relative h-10 w-10 flex-shrink-0">
             <Image
-              src={room.usedBookPost.book.image}
-              alt={room.usedBookPost.book.title}
+              src={room.usedBookSale.book.image}
+              alt={room.usedBookSale.book.title}
               fill
               className="rounded-md object-cover"
             />

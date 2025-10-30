@@ -60,7 +60,7 @@ export interface GetBookDetailErrorResponse {
   message: string;
 }
 
-export interface CreateBookPostParams {
+export interface CreateBookSaleParams {
   title: string;
   price: string;
   city: string;
@@ -80,19 +80,19 @@ export interface CreateBookPostParams {
 
 /**
  * 중고책 판매글의 상태를 나타내는 Enum
- * - NestJS의 PostStatus Enum과 일치해야 합니다.
+ * - NestJS의 SaleStatus Enum과 일치해야 합니다.
  */
-export enum PostStatus {
+export enum SaleStatus {
   FOR_SALE = "FOR_SALE",
   RESERVED = "RESERVED",
   SOLD = "SOLD",
 }
 
 /**
- * 게시글 작성자의 공개 프로필 정보
+ * 판매글 작성자의 공개 프로필 정보
  * - NestJS의 User 엔티티에서 외부에 노출될 필드만 포함합니다.
  */
-export interface PostAuthor {
+export interface SaleAuthor {
   id: number;
   nickname: string;
   profileImageUrl: string | null;
@@ -101,7 +101,7 @@ export interface PostAuthor {
 /**
  * 중고책 판매 게시글의 전체 데이터 구조를 나타내는 타입
  */
-export interface UsedBookPost {
+export interface UsedBookSale {
   id: number;
   title: string;
   price: number;
@@ -109,15 +109,15 @@ export interface UsedBookPost {
   district: string;
   content: string;
   imageUrls: string[];
-  status: PostStatus;
+  status: SaleStatus;
   createdAt: string; // ISO 8601 형식의 날짜 문자열
   updatedAt: string; // ISO 8601 형식의 날짜 문자열
-  user: PostAuthor; // 작성자 정보 (중첩 객체)
+  user: SaleAuthor; // 작성자 정보 (중첩 객체)
   book: BookInfo; // 책 정보 (중첩 객체)
 }
 
 // 책 관련 판매게시글 목록 조회 API 요청 파라미터 타입
-export interface GetRelatedPostsParams {
+export interface GetRelatedSalesParams {
   isbn: string;
   page: number;
   limit: number;
@@ -126,14 +126,14 @@ export interface GetRelatedPostsParams {
 }
 
 // 책 관련 판매게시글 목록 API 응답 타입 (NestJS 응답과 일치)
-export interface GetRelatedPostsResponse {
-  posts: UsedBookPost[];
+export interface GetRelatedSalesResponse {
+  sales: UsedBookSale[];
   total: number;
   page: number;
   hasNextPage: boolean;
 }
 
-export interface UseInfiniteRelatedPostsQueryProps {
+export interface UseInfiniteRelatedSalesQueryProps {
   isbn: string;
   city?: string;
   district?: string;
@@ -141,7 +141,7 @@ export interface UseInfiniteRelatedPostsQueryProps {
 }
 
 // 판매글 수정을 위한 타입. 모든 필드는 선택적(optional)입니다.
-export type UpdateBookPostParams = Partial<{
+export type UpdateBookSaleParams = Partial<{
   title: string;
   price: number;
   city: string;
@@ -150,12 +150,12 @@ export type UpdateBookPostParams = Partial<{
   imageUrls: string[];
 }>;
 
-export type CommonBookPostResponse = {
+export type CommonBookSaleResponse = {
   success: boolean;
-  post: UsedBookPost;
+  sale: UsedBookSale;
 };
 
-export type GetMyBookPostsResponse = {
+export type GetMyBookSalesResponse = {
   success: boolean;
-  posts: UsedBookPost[];
+  sales: UsedBookSale[];
 };

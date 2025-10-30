@@ -19,7 +19,7 @@ export const BookSliderSkeleton = () => (
   </div>
 );
 
-export const RecentPostsSliderSkeleton = () => {
+export const RecentSalesSliderSkeleton = () => {
   return (
     <div className="w-full overflow-hidden px-4">
       <div className="flex gap-8 animate-pulse">

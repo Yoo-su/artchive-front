@@ -1,4 +1,4 @@
-import { PostAuthor, UsedBookPost } from "../book/types";
+import { SaleAuthor, UsedBookSale } from "../book/types";
 
 // 채팅 메시지 타입
 export interface ChatMessage {
@@ -6,7 +6,7 @@ export interface ChatMessage {
   content: string;
   isRead: boolean;
   createdAt: string; // ISO 8601
-  sender: PostAuthor | null;
+  sender: SaleAuthor | null;
   chatRoom: { id: number }; // 순환 참조를 피하기 위해 id만 포함
 }
 
@@ -14,8 +14,8 @@ export interface ChatMessage {
 export interface ChatRoom {
   id: number;
   createdAt: string;
-  participants: { user: PostAuthor }[];
-  usedBookPost: UsedBookPost; // 어떤 판매글에 대한 채팅인지
+  participants: { user: SaleAuthor }[];
+  usedBookSale: UsedBookSale; // 어떤 판매글에 대한 채팅인지
   lastMessage?: ChatMessage; // 마지막 메시지 (서버에서 추가 제공)
   unreadCount?: number; // 안 읽은 메시지 수 (서버에서 추가 제공)
 }
