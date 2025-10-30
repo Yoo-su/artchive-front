@@ -5,17 +5,17 @@ import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import {
   getBookDetail,
   getBookList,
-  getBookPostDetail,
+  getBookSaleDetail,
   getBookSummary,
-  getMyBookPosts,
-  getRecentBookPosts,
-  getRelatedPosts,
+  getMyBookSales,
+  getRecentBookSales,
+  getRelatedSales,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
 import {
   BookInfo,
   GetBookListParams,
-  UseInfiniteRelatedPostsQueryProps,
+  UseInfiniteRelatedSalesQueryProps,
 } from "./types";
 
 export const useBookListQuery = (params: GetBookListParams) => {
@@ -76,44 +76,44 @@ export const useInfiniteBookSearch = (query: string) => {
 /**
  * 내 판매글 목록을 조회하는 커스텀 훅
  */
-export const useMyBookPostsQuery = () => {
+export const useMyBookSalesQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.myPosts.queryKey,
+    queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
     queryFn: async () => {
-      const result = await getMyBookPosts();
-      return result.posts;
+      const result = await getMyBookSales();
+      return result.sales;
     },
   });
 };
 
 /**
  * 판매글 ID를 받아 상세 정보를 조회하는 커스텀 쿼리 훅
- * @param postId - 조회할 판매글의 ID (문자열)
+ * @param saleId - 조회할 판매글의 ID (문자열)
  */
-export const useBookPostDetailQuery = (postId: string) => {
+export const useBookSaleDetailQuery = (saleId: string) => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.postDetail(postId).queryKey,
+    queryKey: QUERY_KEYS.bookKeys.saleDetail(saleId).queryKey,
     queryFn: async () => {
-      const result = await getBookPostDetail(postId);
+      const result = await getBookSaleDetail(saleId);
 
       return result;
     },
-    // postId가 유효한 문자열일 경우에만 쿼리를 실행합니다.
-    enabled: !!postId,
+    // saleId가 유효한 문자열일 경우에만 쿼리를 실행합니다.
+    enabled: !!saleId,
   });
 };
 
-export const useInfiniteRelatedPostsQuery = ({
+export const useInfiniteRelatedSalesQuery = ({
   isbn,
   city,
   district,
   limit = 10,
-}: UseInfiniteRelatedPostsQueryProps) => {
+}: UseInfiniteRelatedSalesQueryProps) => {
   return useInfiniteQuery({
-    queryKey: QUERY_KEYS.bookKeys.relatedPosts({ isbn, city, district, limit })
+    queryKey: QUERY_KEYS.bookKeys.relatedSales({ isbn, city, district, limit })
       .queryKey,
     queryFn: ({ pageParam = 1 }) =>
-      getRelatedPosts({ isbn, page: pageParam, limit, city, district }),
+      getRelatedSales({ isbn, page: pageParam, limit, city, district }),
     initialPageParam: 1,
     getNextPageParam: (lastPage, allPages) => {
       return lastPage.hasNextPage ? allPages.length + 1 : undefined;
@@ -125,10 +125,10 @@ export const useInfiniteRelatedPostsQuery = ({
 /**
  *  최근 중고책 판매글 목록을 조회하는 커스텀 훅
  */
-export const useRecentBookPostsQuery = () => {
+export const useRecentBookSalesQuery = () => {
   return useQuery({
-    queryKey: QUERY_KEYS.bookKeys.recentPosts.queryKey,
-    queryFn: getRecentBookPosts,
+    queryKey: QUERY_KEYS.bookKeys.recentSales.queryKey,
+    queryFn: getRecentBookSales,
     staleTime: 5 * 60 * 1000, // 5분
   });
 };

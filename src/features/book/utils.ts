@@ -1,6 +1,6 @@
-import { PostStatus } from "./types";
+import { SaleStatus } from "./types";
 
-export const getPostStatusLabel = (status: PostStatus): string => {
+export const getSaleStatusLabel = (status: SaleStatus): string => {
   switch (status) {
     case "FOR_SALE":
       return "판매중";
@@ -14,7 +14,7 @@ export const getPostStatusLabel = (status: PostStatus): string => {
 };
 
 export const getStatusBadgeVariant = (
-  status: PostStatus
+  status: SaleStatus
 ): "default" | "secondary" | "destructive" | "outline" => {
   switch (status) {
     case "FOR_SALE":
