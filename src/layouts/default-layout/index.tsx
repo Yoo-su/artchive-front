@@ -2,6 +2,8 @@
 
 import { ReactNode } from "react";
 
+import { RecentBooksDrawer } from "@/features/book/components/recent-books/recent-books-drawer";
+
 import { DefaultFooter } from "./default-footer";
 import { DefaultHeader } from "./default-header";
 
@@ -17,6 +19,7 @@ export const DefaultLayout = ({ children }: DefaultLayoutProps) => {
         {children}
       </main>
       <DefaultFooter />
+      <RecentBooksDrawer />
     </div>
   );
 };

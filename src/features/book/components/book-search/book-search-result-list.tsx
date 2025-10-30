@@ -5,8 +5,8 @@ import { useEffect } from "react";
 import { useInView } from "react-intersection-observer";
 
 import { useInfiniteBookSearch } from "../../queries";
+import { useBookSearchStore } from "../../stores/use-book-search-store";
 import { BookCard } from "../common/book-card";
-import { useBookSearchStore } from "../stores/use-book-search-store";
 
 export const BookSearchResultList = () => {
   const query = useBookSearchStore((state) => state.query);

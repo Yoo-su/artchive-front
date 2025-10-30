@@ -1,6 +1,6 @@
-import { fireEvent,render, screen } from "@testing-library/react";
+import { fireEvent, render, screen } from "@testing-library/react";
 
-import { useBookSearchStore } from "../stores/use-book-search-store";
+import { useBookSearchStore } from "../../stores/use-book-search-store";
 import { BookSearchInput } from "./book-search-input";
 
 // Zustand store mock
