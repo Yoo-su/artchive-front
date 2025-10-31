@@ -132,6 +132,35 @@ export const useChatStore = create<ChatState>((set, get) => ({
       },
     );
 
+    newSocket.on(
+      'userRejoined',
+      ({ roomId, message }: { roomId: number; message: ChatMessage }) => {
+        // Add the system message to the message cache
+        queryClient.setQueryData<InfiniteMessagesData>(
+          QUERY_KEYS.chatKeys.messages(roomId).queryKey,
+          (oldData) => {
+            if (!oldData) return oldData;
+            const newPages = [...oldData.pages];
+            newPages[0] = {
+              ...newPages[0],
+              messages: [message, ...newPages[0].messages],
+            };
+            return { ...oldData, pages: newPages };
+          },
+        );
+
+        // Set the room back to active
+        set((state) => ({
+          isRoomInactive: { ...state.isRoomInactive, [roomId]: false },
+        }));
+
+        // Invalidate rooms query to get fresh participant data
+        queryClient.invalidateQueries({
+          queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+        });
+      },
+    );
+
     newSocket.on("typing", ({ nickname, isTyping }) => {
       const { activeChatRoomId } = get();
       if (activeChatRoomId) {
