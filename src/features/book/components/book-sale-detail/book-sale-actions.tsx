@@ -9,6 +9,7 @@ import { useState } from "react";
 
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
+import { ChatRoom } from "@/features/chat/types";
 import {
   Avatar,
   AvatarFallback,
@@ -36,7 +37,7 @@ interface BookSaleActionsProps {
 
 export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const { openChatRoom, rejoinRoom } = useChatStore();
+  const { openChatRoom, subscribeToRoom } = useChatStore();
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
@@ -67,16 +68,38 @@ export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
   const handleStartChat = async () => {
     setIsCreatingChat(true);
     try {
-      const room = await findOrCreateRoom(sale.id);
+      const newRoom = await findOrCreateRoom(sale.id);
 
-      rejoinRoom(room.id);
+      // 새 채팅방을 구독합니다.
+      subscribeToRoom(newRoom.id);
 
-      await queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
-      });
-      openChatRoom(room.id, queryClient);
+      // 채팅방 목록 쿼리 데이터를 업데이트하여 새 채팅방을 추가합니다.
+      queryClient.setQueryData<ChatRoom[]>(
+        QUERY_KEYS.chatKeys.rooms.queryKey,
+        (oldRooms) => {
+          if (!oldRooms) return [newRoom];
+          // 이미 존재하는 방인지 확인합니다.
+          const isExisting = oldRooms.some((room) => room.id === newRoom.id);
+          if (isExisting) {
+            // 기존 방이 있다면, 활성 상태로 만들고 목록의 맨 위로 올립니다.
+            return oldRooms
+              .map((room) => (room.id === newRoom.id ? newRoom : room))
+              .sort(
+                (a, b) =>
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
+              );
+          }
+          // 새 방이라면 목록의 맨 앞에 추가합니다.
+          return [newRoom, ...oldRooms];
+        }
+      );
+
+      // 채팅방을 엽니다.
+      openChatRoom(newRoom.id, queryClient);
     } catch (error) {
       console.error("Failed to start chat:", error);
+      alert("채팅방을 여는 데 실패했습니다. 다시 시도해주세요.");
     } finally {
       setIsCreatingChat(false);
     }
