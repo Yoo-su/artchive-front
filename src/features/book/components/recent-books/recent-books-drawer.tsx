@@ -3,6 +3,7 @@
 import { History } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import React from "react";
 
 import {
@@ -12,13 +13,18 @@ import {
   SheetTitle,
   SheetTrigger,
 } from "@/shared/components/shadcn/sheet";
+import { PATHS } from "@/shared/constants/paths";
 
 import { useRecentBookStore } from "../../stores/use-recent-book-store";
 
 export const RecentBooksDrawer = () => {
+  const pathname = usePathname();
   const recentBooks = useRecentBookStore((state) => state.recentBooks);
 
-  if (recentBooks.length === 0) {
+  const shouldShow =
+    pathname === PATHS.HOME || pathname === PATHS.BOOK_SEARCH;
+
+  if (recentBooks.length === 0 || !shouldShow) {
     return null;
   }
 
