@@ -9,41 +9,6 @@ import { useState } from "react";
 
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/shared/components/shadcn/avatar";
-import { Button } from "@/shared/components/shadcn/button";
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/shared/components/shadcn/card";
-import { Separator } from "@/shared/components/shadcn/separator";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
-import { formatPostDate } from "@/shared/utils/date";
-
-import { useDeleteBookSaleMutation } from "../../mutations";
-import { UsedBookSale } from "../../types";
-import { SaleStatusBadge } from "../common/sale-status-badge";
-
-interface BookSaleActionsProps {
-  sale: UsedBookSale;
-  isOwner: boolean;
-}
-
-export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
-  const [isCreatingChat, setIsCreatingChat] = useState(false);
-  import { useQueryClient } from "@tanstack/react-query";
-import { Clock, Edit, Loader2, MessageCircle, Trash2 } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
-import { useState } from "react";
-
-import { findOrCreateRoom } from "@/features/chat/apis";
-import { useChatStore } from "@/features/chat/stores/use-chat-store";
 import { ChatRoom } from "@/features/chat/types";
 import {
   Avatar,
@@ -86,14 +51,14 @@ export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
       ? Math.round(
           ((Number(sale.book.discount) - sale.price) /
             Number(sale.book.discount)) *
-            100,
+            100
         )
       : 0;
 
   const handleDelete = () => {
     if (
       window.confirm(
-        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다.",
+        "정말로 이 판매글을 삭제하시겠습니까?\n삭제된 데이터는 복구할 수 없습니다."
       )
     ) {
       deleteSale({ saleId: sale.id, imageUrls: sale.imageUrls });
@@ -121,13 +86,13 @@ export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
               .map((room) => (room.id === newRoom.id ? newRoom : room))
               .sort(
                 (a, b) =>
-                  new Date(b.updatedAt).getTime() -
-                  new Date(a.updatedAt).getTime(),
+                  new Date(b.createdAt).getTime() -
+                  new Date(a.createdAt).getTime()
               );
           }
           // 새 방이라면 목록의 맨 앞에 추가합니다.
           return [newRoom, ...oldRooms];
-        },
+        }
       );
 
       // 채팅방을 엽니다.
