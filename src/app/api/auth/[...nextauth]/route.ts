@@ -95,6 +95,12 @@ async function refreshAccessToken(token: JWT): Promise<JWT> {
 
 // --- AuthOptions 환경 설정 ---
 
+/**
+ * 중복 토큰 재발급을 방지하기 위한 변수입니다.
+ * 재발급 요청이 진행 중일 때, 해당 요청의 Promise를 저장합니다.
+ */
+let refreshTokenPromise: Promise<JWT> | null = null;
+
 const authOptions: AuthOptions = {
   providers: [
     KakaoProvider({
@@ -110,12 +116,9 @@ const authOptions: AuthOptions = {
     strategy: "jwt",
   },
   callbacks: {
-    // 1. JWT Callback: JWT 값이 생성되거나 수정될때 매번 호출됩니다.
+    // JWT Callback: JWT 값이 생성되거나 수정될때 매번 호출됩니다.
     async jwt({ token, account, profile }): Promise<JWT> {
-      /**
-       * 최초 로그인 시에만 `account` 과 `profile`값이 존재합니다.
-       * 최초 로그인 후 nest 서버로부터 토큰을 받아와 저장합니다.
-       */
+      // 최초 로그인
       if (account && profile) {
         let socialLoginDto: SocialLoginDto | null = null;
 
@@ -146,13 +149,11 @@ const authOptions: AuthOptions = {
         }
 
         try {
-          // Nest 백엔드 서버의 social-login api를 호출합니다.
           const { data } = await publicAxios.post(
             "/auth/social-login",
             socialLoginDto
           );
 
-          // 서버로부터 응답된 토큰정보를 NextAuth 토큰정보에 저장합니다.
           token.accessToken = data.accessToken;
           token.refreshToken = data.refreshToken;
           token.accessTokenExpires = getExpirationFromJwt(data.accessToken);
@@ -165,20 +166,32 @@ const authOptions: AuthOptions = {
         }
       }
 
-      // 최초 로그인 이후 세션에 접근 시, 토큰이 만료되었는지 체크합니다
+      // 토큰이 아직 유효한 경우, 그대로 반환
       if (token.accessTokenExpires && Date.now() < token.accessTokenExpires) {
         return token;
       }
 
-      // 토큰이 만료되었으면 새로 토큰을 발급받아 리턴합니다.
+      // 토큰이 만료되었고, 현재 다른 곳에서 재발급 중이라면 그 요청을 기다림
+      if (refreshTokenPromise) {
+        console.log("Refresh already in progress, waiting...");
+        return await refreshTokenPromise;
+      }
+
+      // 토큰이 만료되었고, 재발급 중인 요청도 없다면 새로운 재발급 요청 시작
       console.log("Access token expired, attempting to refresh...");
-      const newJWT = await refreshAccessToken(token);
-      return newJWT;
+      refreshTokenPromise = refreshAccessToken(token);
+
+      try {
+        // 방금 시작한 재발급 요청을 기다려 결과를 반환
+        return await refreshTokenPromise;
+      } finally {
+        // 재발급 요청이 성공하든 실패하든, 다음 재발급을 위해 Promise를 초기화
+        refreshTokenPromise = null;
+      }
     },
 
     // 클라이언트가 세션 데이터에 접근할 때 호출됩니다.
     async session({ session, token }): Promise<any> {
-      // 클라이언트 사이드 세션 객체에 JWT 객체의 최신 토큰정보를 반환합니다.
       session.accessToken = token.accessToken;
       session.user = token.user;
       session.error = token.error;
