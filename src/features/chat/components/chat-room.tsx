@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { ArrowLeft, Loader2, LogOut, SendHorizontal } from "lucide-react";
 import Image from "next/image";
+import { useSession } from "next-auth/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
   AvatarFallback,
@@ -88,7 +88,7 @@ export const ChatRoom = ({
 }: ChatRoomProps) => {
   const { closeChatRoom, leaveRoom, isRoomInactive } = useChatStore();
   const queryClient = useQueryClient();
-  const { user: currentUser } = useAuthStore();
+  const { data: session } = useSession();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
@@ -125,7 +125,7 @@ export const ChatRoom = ({
     }
   }, [messages]);
 
-  if (isLoading || !room || !currentUser) {
+  if (isLoading || !room || !session?.user) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -134,7 +134,7 @@ export const ChatRoom = ({
   }
 
   const opponent = room.participants.find(
-    (p) => p.user.id !== currentUser.id
+    (p) => p.user.id !== session.user.id
   )?.user;
 
   const handleScroll = () => {
@@ -235,7 +235,7 @@ export const ChatRoom = ({
           <MessageBubble
             key={message.id}
             message={message}
-            isMine={message.sender?.id === currentUser.id}
+            isMine={message.sender?.id === session.user.id}
           />
         ))}
         <div ref={messagesEndRef} />

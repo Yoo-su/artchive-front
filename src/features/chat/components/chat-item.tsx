@@ -4,9 +4,9 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format, isToday, isYesterday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { motion } from "framer-motion";
+import { useSession } from "next-auth/react";
 import { useState } from "react";
 
-import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
   AvatarFallback,
@@ -27,7 +27,8 @@ const formatLastMessageTime = (date: string) => {
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const { openChatRoom } = useChatStore();
-  const { user: currentUser } = useAuthStore();
+  const { data: session } = useSession();
+  const currentUser = session?.user;
   const queryClient = useQueryClient();
   const [isOpening, setIsOpening] = useState(false);
 

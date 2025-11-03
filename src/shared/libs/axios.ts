@@ -1,7 +1,5 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
-import { signOut } from "next-auth/react";
-
-import { useAuthStore } from "@/features/auth/store";
+import axios from "axios";
+import { getSession, signOut } from "next-auth/react";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -19,34 +17,31 @@ export const internalAxios = axios.create({
   baseURL: "/api",
 });
 
-// privateAxios에만 인터셉터 적용
+// privateAxios에만 요청 인터셉터 적용
 privateAxios.interceptors.request.use(
-  (config) => {
-    // Zustand 스토어에서 토큰을 가져옵니다.
-    const accessToken = useAuthStore.getState().accessToken;
-    if (accessToken) {
-      config.headers["Authorization"] = `Bearer ${accessToken}`;
+  async (config) => {
+    // 요청 전에 NextAuth 세션에서 최신 토큰을 가져옵니다.
+    const session = await getSession();
+
+    if (session?.accessToken) {
+      config.headers["Authorization"] = `Bearer ${session.accessToken}`;
     }
     return config;
   },
   (error) => Promise.reject(error)
 );
 
+// 응답 인터셉터: NextAuth가 토큰 재발급 실패 시 에러를 처리
 privateAxios.interceptors.response.use(
   (response) => response,
-  async (error: AxiosError) => {
-    const originalRequest = error.config as InternalAxiosRequestConfig;
-
-    if (error.response?.status === 401 && !(originalRequest as any)._retry) {
-      (originalRequest as any)._retry = true;
-
-      const newAccessToken = await useAuthStore.getState().refreshAccessToken();
-
-      if (newAccessToken) {
-        originalRequest.headers["Authorization"] = `Bearer ${newAccessToken}`;
-        return privateAxios(originalRequest);
-      } else {
-        await signOut({ callbackUrl: "/login" });
+  async (error) => {
+    // 401 에러가 발생했을 때, NextAuth 세션에 RefreshAccessTokenError가 있는지 확인
+    // 이는 NextAuth가 토큰 재발급에 실패했음을 의미합니다.
+    if (error.response?.status === 401) {
+      const session = await getSession();
+      if (session?.error === "RefreshAccessTokenError") {
+        console.error("Failed to refresh token, signing out.");
+        await signOut({ callbackUrl: "/login" }); // 세션 만료, 로그인 페이지로 리디렉션
       }
     }
 

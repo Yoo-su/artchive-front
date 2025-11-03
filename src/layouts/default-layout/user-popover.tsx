@@ -10,7 +10,6 @@ import { LogIn } from "lucide-react";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 
-import { useAuthStore } from "@/features/auth/store";
 // Shadcn/ui 컴포넌트 임포트
 import {
   Avatar,
@@ -26,8 +25,7 @@ import {
 import { Separator } from "@/shared/components/shadcn/separator";
 
 export default function UserPopover() {
-  const { status } = useSession();
-  const { user } = useAuthStore();
+  const { data: session, status } = useSession();
 
   const handleLogout = async () => {
     await signOut({ callbackUrl: "/home" });
@@ -35,7 +33,7 @@ export default function UserPopover() {
 
   if (status === "loading") return null;
 
-  if (!user) {
+  if (status === "unauthenticated" || !session?.user) {
     return (
       <Link href="/login">
         <Button className="bg-white cursor-pointer hover:bg-white text-gray-600 border-[0.5px] rounded-full border-gray-100 p-2">
@@ -45,6 +43,8 @@ export default function UserPopover() {
       </Link>
     );
   }
+
+  const { user } = session;
 
   // 3. 로그인 상태일 때
   return (
