@@ -1,8 +1,8 @@
 import { QueryClient } from "@tanstack/react-query";
+import { getSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
 
-import { useAuthStore } from "@/features/auth/store";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
 import { getMyChatRooms, leaveChatRoom } from "../apis";
@@ -41,14 +41,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
   typingUsers: {},
   isRoomInactive: {},
 
-  connect: (queryClient) => {
-    const { accessToken, user: currentUser } = useAuthStore.getState();
-    if (!accessToken || get().socket) return;
+  connect: async (queryClient) => {
+    const session = await getSession();
+    if (!session?.accessToken || get().socket) return;
 
     const newSocket = io(process.env.NEXT_PUBLIC_API_URL!, {
       transportOptions: {
         polling: {
-          extraHeaders: { Authorization: `Bearer ${accessToken}` },
+          extraHeaders: { Authorization: `Bearer ${session.accessToken}` },
         },
       },
     });
@@ -64,9 +64,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
       }
     });
 
-    newSocket.on("newMessage", (newMessage: ChatMessage) => {
+    newSocket.on("newMessage", async (newMessage: ChatMessage) => {
       const roomId = newMessage.chatRoom.id;
       const { isChatOpen, activeChatRoomId } = get();
+      const session = await getSession(); // Get current session to check user ID
+      const currentUser = session?.user;
 
       queryClient.setQueryData<InfiniteMessagesData>(
         QUERY_KEYS.chatKeys.messages(roomId).queryKey,
@@ -78,7 +80,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
             messages: [newMessage, ...newPages[0].messages],
           };
           return { ...oldData, pages: newPages };
-        },
+        }
       );
 
       queryClient.setQueryData<ChatRoom[]>(
@@ -97,14 +99,14 @@ export const useChatStore = create<ChatState>((set, get) => ({
                         ? room.unreadCount
                         : (room.unreadCount || 0) + 1,
                   }
-                : room,
+                : room
             )
             .sort(
               (a, b) =>
                 new Date(b.lastMessage?.createdAt ?? 0).getTime() -
-                new Date(a.lastMessage?.createdAt ?? 0).getTime(),
+                new Date(a.lastMessage?.createdAt ?? 0).getTime()
             );
-        },
+        }
       );
     });
 
@@ -121,7 +123,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
               messages: [message, ...newPages[0].messages],
             };
             return { ...oldData, pages: newPages };
-          },
+          }
         );
         set((state) => ({
           isRoomInactive: { ...state.isRoomInactive, [roomId]: true },
@@ -129,11 +131,11 @@ export const useChatStore = create<ChatState>((set, get) => ({
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
         });
-      },
+      }
     );
 
     newSocket.on(
-      'userRejoined',
+      "userRejoined",
       ({ roomId, message }: { roomId: number; message: ChatMessage }) => {
         // Add the system message to the message cache
         queryClient.setQueryData<InfiniteMessagesData>(
@@ -146,7 +148,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
               messages: [message, ...newPages[0].messages],
             };
             return { ...oldData, pages: newPages };
-          },
+          }
         );
 
         // Set the room back to active
@@ -158,7 +160,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         queryClient.invalidateQueries({
           queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
         });
-      },
+      }
     );
 
     newSocket.on("typing", ({ nickname, isTyping }) => {
@@ -193,7 +195,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
           console.error("Message failed to send:", response.error);
           alert(`메시지 전송에 실패했습니다: ${response.error}`);
         }
-      },
+      }
     );
   },
 
@@ -222,7 +224,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
         (oldRooms) =>
           oldRooms
             ? oldRooms.filter((room) => room.id !== activeChatRoomId)
-            : [],
+            : []
       );
       queryClient.removeQueries({
         queryKey: QUERY_KEYS.chatKeys.messages(activeChatRoomId).queryKey,
@@ -258,9 +260,9 @@ export const useChatStore = create<ChatState>((set, get) => ({
       (oldRooms) => {
         if (!oldRooms) return [];
         return oldRooms.map((room) =>
-          room.id === roomId ? { ...room, unreadCount: 0 } : room,
+          room.id === roomId ? { ...room, unreadCount: 0 } : room
         );
-      },
+      }
     );
   },
 }));

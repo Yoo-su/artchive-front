@@ -1,8 +1,8 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
+import { useSession } from "next-auth/react";
 
-import { useAuthStore } from "@/features/auth/store";
 import { BookSaleActions } from "@/features/book/components/book-sale-detail/book-sale-actions";
 import { BookSaleInfo } from "@/features/book/components/book-sale-detail/book-sale-info";
 import { BookSaleDetailSkeleton } from "@/features/book/components/book-sale-detail/skeleton";
@@ -12,7 +12,8 @@ interface BookSaleDetailViewProps {
   saleId: string;
 }
 export const BookSaleDetailView = ({ saleId }: BookSaleDetailViewProps) => {
-  const { user: currentUser } = useAuthStore();
+  const { data: session } = useSession();
+  const currentUser = session?.user;
 
   const {
     data: sale,
