@@ -1,15 +1,10 @@
-/* =================================================================
-  src/components/layout/UserPopover.tsx
-  - 헤더에 들어갈 사용자 아바타 및 Popover 메뉴 컴포넌트입니다.
-  - Shadcn/ui 컴포넌트를 사용하여 리팩토링되었습니다.
-  =================================================================
-*/
 "use client";
 
 import { LogIn } from "lucide-react";
 import Link from "next/link";
-import { signOut, useSession } from "next-auth/react";
 
+import { useLogoutMutation } from "@/features/auth/mutations";
+import { useGetUser } from "@/features/auth/queries";
 // Shadcn/ui 컴포넌트 임포트
 import {
   Avatar,
@@ -25,15 +20,12 @@ import {
 import { Separator } from "@/shared/components/shadcn/separator";
 
 export default function UserPopover() {
-  const { data: session, status } = useSession();
+  const { data: user, isLoading } = useGetUser();
+  const { mutate: logout } = useLogoutMutation();
 
-  const handleLogout = async () => {
-    await signOut({ callbackUrl: "/home" });
-  };
+  if (isLoading) return null;
 
-  if (status === "loading") return null;
-
-  if (status === "unauthenticated" || !session?.user) {
+  if (!user) {
     return (
       <Link href="/login">
         <Button className="bg-white cursor-pointer hover:bg-white text-gray-600 border-[0.5px] rounded-full border-gray-100 p-2">
@@ -43,8 +35,6 @@ export default function UserPopover() {
       </Link>
     );
   }
-
-  const { user } = session;
 
   // 3. 로그인 상태일 때
   return (
@@ -87,7 +77,9 @@ export default function UserPopover() {
           <Button
             variant="ghost"
             className="justify-start w-full h-auto px-3 py-2"
-            onClick={handleLogout}
+            onClick={() => {
+              logout();
+            }}
           >
             로그아웃
           </Button>

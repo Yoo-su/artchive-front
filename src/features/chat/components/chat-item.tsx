@@ -4,9 +4,10 @@ import { useQueryClient } from "@tanstack/react-query";
 import { format, isToday, isYesterday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { motion } from "framer-motion";
-import { useSession } from "next-auth/react";
+import { MessageSquareText } from "lucide-react";
 import { useState } from "react";
 
+import { useGetUser } from "@/features/auth/queries";
 import {
   Avatar,
   AvatarFallback,
@@ -27,8 +28,7 @@ const formatLastMessageTime = (date: string) => {
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const { openChatRoom } = useChatStore();
-  const { data: session } = useSession();
-  const currentUser = session?.user;
+  const { data: currentUser } = useGetUser();
   const queryClient = useQueryClient();
   const [isOpening, setIsOpening] = useState(false);
 
@@ -75,16 +75,29 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
           <p className="font-semibold truncate text-gray-800">
             {opponent?.nickname}
           </p>
-          {room.lastMessage && (
-            <p className="text-xs text-gray-400 flex-shrink-0">
-              {formatLastMessageTime(room.lastMessage.createdAt)}
-            </p>
-          )}
         </div>
-        <div className="flex justify-between items-start mt-1">
-          <p className="text-sm text-gray-500 truncate w-10/12">
-            {room.lastMessage?.content || "아직 메시지가 없습니다."}
+        <div className="flex items-center gap-2 mt-1">
+          <span className="text-xs font-medium bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full flex-shrink-0">
+            판매도서
+          </span>
+          <p className="text-sm text-gray-700 truncate font-semibold">
+            {room.usedBookSale.book.title}
           </p>
+        </div>
+        <div className="flex justify-between items-start mt-1.5">
+          <div className="flex items-center justify-between text-sm text-gray-500 w-10/12">
+            <div className="flex items-center gap-1.5 truncate">
+              <MessageSquareText className="h-4 w-4 flex-shrink-0" />
+              <p className="truncate">
+                {room.lastMessage?.content || "아직 메시지가 없습니다."}
+              </p>
+            </div>
+            {room.lastMessage && (
+              <p className="text-xs text-gray-400 flex-shrink-0">
+                {formatLastMessageTime(room.lastMessage.createdAt)}
+              </p>
+            )}
+          </div>
           {(room.unreadCount ?? 0) > 0 && (
             <motion.div
               initial={{ scale: 0 }}
@@ -97,6 +110,14 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
           )}
         </div>
       </div>
+      <Avatar className="h-14 w-14 rounded-md flex-shrink-0">
+        <AvatarImage
+          src={room.usedBookSale.book.image}
+          alt={room.usedBookSale.book.title}
+          className="object-cover rounded-md"
+        />
+        <AvatarFallback className="rounded-md">Book</AvatarFallback>
+      </Avatar>
     </div>
   );
 };

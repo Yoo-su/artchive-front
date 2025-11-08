@@ -14,10 +14,10 @@ export const Logo = () => {
       onClick={handleClickLogo}
     >
       <span className="text-3xl font-extrabold font-sans leading-none tracking-tight">
-        <span className="bg-gradient-to-r from-blue-400 to-purple-500 bg-clip-text text-transparent">
-          Art
-        </span>
-        <span className="text-gray-800 dark:text-gray-200">Chive</span>
+        {/* 'Art' 부분: 로고 이미지의 어두운 파란색 계열로 변경 */}
+        <span style={{ color: "#1a2a4b" }}>Art</span>
+        {/* 'Chive' 부분: 로고 이미지의 어두운 녹색 계열로 변경 */}
+        <span style={{ color: "#2b6d61" }}>Chive</span>
       </span>
     </div>
   );

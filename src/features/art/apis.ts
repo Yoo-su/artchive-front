@@ -1,4 +1,4 @@
-import { internalAxios, publicAxios } from "@/shared/libs/axios";
+import { internalAxios } from "@/shared/libs/axios";
 import { getSimpleDate } from "@/shared/utils/date";
 
 import {

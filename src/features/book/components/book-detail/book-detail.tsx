@@ -3,7 +3,6 @@
 import { Heart, PenSquare } from "lucide-react";
 import Image from "next/image";
 import { useParams } from "next/navigation";
-import { useSession } from "next-auth/react";
 import { useEffect } from "react";
 
 // Shadcn/ui 컴포넌트
@@ -20,9 +19,13 @@ import { BookDetailSkeleton } from "./skeleton";
 export const BookDetail = () => {
   const params = useParams();
   const isbn = params.isbn as string;
-  const { data: sessionData } = useSession();
 
-  const { data: book, isLoading, isError, isSuccess } = useBookDetailQuery(isbn);
+  const {
+    data: book,
+    isLoading,
+    isError,
+    isSuccess,
+  } = useBookDetailQuery(isbn);
   const addRecentBook = useRecentBookStore((state) => state.addRecentBook);
 
   useEffect(() => {
@@ -94,9 +97,7 @@ export const BookDetail = () => {
               size="lg"
               variant="outline"
               className="w-full sm:w-auto"
-              onClick={() => {
-                console.log(sessionData);
-              }}
+              onClick={() => {}}
             >
               <Heart className="w-4 h-4 mr-2" />
               위시리스트

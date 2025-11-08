@@ -1,8 +1,8 @@
 "use client";
 
 import { AlertTriangle } from "lucide-react";
-import { useSession } from "next-auth/react";
 
+import { useGetUser } from "@/features/auth/queries";
 import { BookSaleActions } from "@/features/book/components/book-sale-detail/book-sale-actions";
 import { BookSaleInfo } from "@/features/book/components/book-sale-detail/book-sale-info";
 import { BookSaleDetailSkeleton } from "@/features/book/components/book-sale-detail/skeleton";
@@ -12,9 +12,7 @@ interface BookSaleDetailViewProps {
   saleId: string;
 }
 export const BookSaleDetailView = ({ saleId }: BookSaleDetailViewProps) => {
-  const { data: session } = useSession();
-  const currentUser = session?.user;
-
+  const { data: currentUser } = useGetUser();
   const {
     data: sale,
     isLoading,

@@ -1,5 +1,4 @@
 import { QueryClient } from "@tanstack/react-query";
-import { getSession } from "next-auth/react";
 import { io, Socket } from "socket.io-client";
 import { create } from "zustand";
 
@@ -42,15 +41,13 @@ export const useChatStore = create<ChatState>((set, get) => ({
   isRoomInactive: {},
 
   connect: async (queryClient) => {
-    const session = await getSession();
-    if (!session?.accessToken || get().socket) return;
+    if (get().socket) {
+      return;
+    }
 
     const newSocket = io(process.env.NEXT_PUBLIC_API_URL!, {
-      transportOptions: {
-        polling: {
-          extraHeaders: { Authorization: `Bearer ${session.accessToken}` },
-        },
-      },
+      withCredentials: true,
+      transports: ['websocket'],
     });
 
     newSocket.on("connect", async () => {
@@ -67,8 +64,6 @@ export const useChatStore = create<ChatState>((set, get) => ({
     newSocket.on("newMessage", async (newMessage: ChatMessage) => {
       const roomId = newMessage.chatRoom.id;
       const { isChatOpen, activeChatRoomId } = get();
-      const session = await getSession(); // Get current session to check user ID
-      const currentUser = session?.user;
 
       queryClient.setQueryData<InfiniteMessagesData>(
         QUERY_KEYS.chatKeys.messages(roomId).queryKey,
@@ -94,8 +89,7 @@ export const useChatStore = create<ChatState>((set, get) => ({
                     ...room,
                     lastMessage: newMessage,
                     unreadCount:
-                      newMessage.sender?.id === currentUser?.id ||
-                      (isChatOpen && activeChatRoomId === roomId)
+                      true || (isChatOpen && activeChatRoomId === roomId)
                         ? room.unreadCount
                         : (room.unreadCount || 0) + 1,
                   }
