@@ -5,9 +5,9 @@ import { AnimatePresence, motion } from "framer-motion";
 import debounce from "lodash/debounce";
 import { ArrowLeft, Loader2, LogOut, SendHorizontal } from "lucide-react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
+import { useGetUser } from "@/features/auth/queries";
 import {
   Avatar,
   AvatarFallback,
@@ -87,8 +87,8 @@ export const ChatRoom = ({
   emitStopTyping,
 }: ChatRoomProps) => {
   const { closeChatRoom, leaveRoom, isRoomInactive } = useChatStore();
+  const { data: currentUser } = useGetUser();
   const queryClient = useQueryClient();
-  const { data: session } = useSession();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
@@ -125,7 +125,7 @@ export const ChatRoom = ({
     }
   }, [messages]);
 
-  if (isLoading || !room || !session?.user) {
+  if (isLoading || !room) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -134,7 +134,7 @@ export const ChatRoom = ({
   }
 
   const opponent = room.participants.find(
-    (p) => p.user.id !== session.user.id
+    (p) => p.user.id !== currentUser?.id
   )?.user;
 
   const handleScroll = () => {
@@ -192,7 +192,7 @@ export const ChatRoom = ({
             />
           </div>
           <div className="overflow-hidden">
-            <p className="font-semibold truncate">{opponent?.nickname}</p>
+            {/* <p className="font-semibold truncate">{opponent?.nickname}</p> */}
             <div className="h-5">
               <AnimatePresence>
                 {typingNickname && (
@@ -235,7 +235,7 @@ export const ChatRoom = ({
           <MessageBubble
             key={message.id}
             message={message}
-            isMine={message.sender?.id === session.user.id}
+            isMine={message.sender?.id === currentUser?.id}
           />
         ))}
         <div ref={messagesEndRef} />

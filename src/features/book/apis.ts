@@ -1,4 +1,4 @@
-import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
+import { axiosInstance,internalAxios } from "@/shared/libs/axios";
 
 import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "./constants";
 import {
@@ -67,7 +67,7 @@ export const getBookDetail = async (
 export const createBookSale = async (
   payload: CreateBookSaleParams
 ): Promise<CommonBookSaleResponse> => {
-  const { data } = await privateAxios.post<CommonBookSaleResponse>(
+  const { data } = await axiosInstance.post<CommonBookSaleResponse>(
     "/book/sale",
     payload
   );
@@ -80,7 +80,7 @@ export const createBookSale = async (
  */
 export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
   const { data } =
-    await privateAxios.get<GetMyBookSalesResponse>("/user/my-sales");
+    await axiosInstance.get<GetMyBookSalesResponse>("/user/my-sales");
   return data;
 };
 
@@ -94,7 +94,7 @@ export const updateBookSaleStatus = async ({
   saleId: number;
   status: string;
 }): Promise<CommonBookSaleResponse> => {
-  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
+  const { data } = await axiosInstance.patch<CommonBookSaleResponse>(
     `/book/sales/${saleId}/status`,
     {
       status,
@@ -105,7 +105,9 @@ export const updateBookSaleStatus = async ({
 
 /** 특정 판매글 상세 정보 조회 API */
 export const getBookSaleDetail = async (saleId: string) => {
-  const { data } = await publicAxios.get<UsedBookSale>(`/book/sales/${saleId}`);
+  const { data } = await axiosInstance.get<UsedBookSale>(
+    `/book/sales/${saleId}`
+  );
   return data;
 };
 
@@ -126,7 +128,7 @@ export const getRelatedSales = async ({
   if (city) params.append("city", city);
   if (district) params.append("district", district);
 
-  const response = await publicAxios.get<GetRelatedSalesResponse>(
+  const response = await axiosInstance.get<GetRelatedSalesResponse>(
     `/book/${isbn}/sales`,
     { params }
   );
@@ -145,7 +147,7 @@ export const updateBookSale = async ({
   saleId: number;
   payload: UpdateBookSaleParams;
 }) => {
-  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
+  const { data } = await axiosInstance.patch<CommonBookSaleResponse>(
     `/book/sales/${saleId}`,
     payload
   );
@@ -157,19 +159,20 @@ export const updateBookSale = async ({
  * @param saleId - 삭제할 판매글 ID
  */
 export const deleteBookSale = async (saleId: number) => {
-  await privateAxios.delete(`/book/sales/${saleId}`);
+  await axiosInstance.delete(`/book/sales/${saleId}`);
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록 조회 API
  */
 export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  const { data } = await publicAxios.get<UsedBookSale[]>("/book/sales/recent");
+  const { data } =
+    await axiosInstance.get<UsedBookSale[]>("/book/sales/recent");
   return data;
 };
 
 export const getBookSummary = async (title: string, author: string) => {
-  const { data } = await publicAxios.post("/llm/book-summary", {
+  const { data } = await axiosInstance.post("/llm/book-summary", {
     title,
     author,
   });

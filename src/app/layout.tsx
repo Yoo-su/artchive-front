@@ -12,11 +12,9 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
 
-import { NavigationButtons } from "@/layouts/common/navigation-buttons";
 import { QueryProvider } from "@/shared/providers";
-import AuthProvider from "@/shared/providers/auth-provider";
 import { ChatProvider } from "@/shared/providers/chat-provider";
-import NextAuthSessionProvider from "@/shared/providers/session-provider";
+import UserProvider from "@/shared/providers/user-provider";
 
 // SEO를 위한 기본 메타데이터 객체
 export const metadata: Metadata = {
@@ -76,16 +74,14 @@ export default function Layout({
       className={`${pretendard.variable} ${nanum_gothic.variable}`}
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
-        <NextAuthSessionProvider>
-          <AuthProvider>
-            <QueryProvider>
-              <ChatProvider>{children}</ChatProvider>
-            </QueryProvider>
-          </AuthProvider>
-        </NextAuthSessionProvider>
-        <Analytics />
-        <SpeedInsights />
-        {/*  <NavigationButtons /> */}
+        <QueryProvider>
+          <UserProvider>
+            <ChatProvider>{children}</ChatProvider>
+          </UserProvider>
+
+          <Analytics />
+          <SpeedInsights />
+        </QueryProvider>
       </body>
     </html>
   );
