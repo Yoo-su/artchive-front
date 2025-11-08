@@ -15,7 +15,7 @@ export const logout = async () => {
     queryClient.clear();
     if (typeof window !== "undefined") {
       // Hard redirect to the login page to clear all application state.
-      window.location.href = "/login";
+      //window.location.href = "/login";
     }
   });
 };

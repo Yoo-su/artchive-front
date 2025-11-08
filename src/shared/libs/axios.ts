@@ -63,7 +63,6 @@ axiosInstance.interceptors.response.use(
         processQueue(null, null);
         return axiosInstance(originalRequest);
       } catch (refreshError) {
-        console.log("refresh error!!");
         processQueue(refreshError as AxiosError, null);
 
         // 로그아웃 처리
