@@ -47,7 +47,7 @@ export const SaleCard = ({ sale, idx }: SaleCardProps) => {
             <h3 className="truncate font-semibold text-gray-800">
               {sale.title}
             </h3>
-            <p className="mt-2 text-xl font-bold text-violet-600">
+            <p className="mt-2 text-xl font-bold text-emerald-600">
               {sale.price.toLocaleString()}원
             </p>
             <div className="mt-2 flex items-center text-xs text-gray-500">

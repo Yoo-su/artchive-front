@@ -123,7 +123,7 @@ export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
         <h1 className="text-3xl font-bold tracking-tight text-gray-900">
           {sale.title}
         </h1>
-        <p className="mt-4 text-2xl font-bold text-violet-600">
+        <p className="mt-4 text-2xl font-bold text-emerald-600">
           {sale.price.toLocaleString()}원
           {discountRate > 0 && (
             <span className="ml-3 text-lg font-medium text-gray-400 line-through">

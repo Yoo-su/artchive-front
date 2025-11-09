@@ -36,7 +36,7 @@ export const BookSaleInfo = ({ sale }: BookSaleInfoProps) => {
               key={url}
               className={`relative w-20 h-20 overflow-hidden border-2 rounded-md transition-all ${
                 mainImage === url
-                  ? "border-violet-500 scale-105"
+                  ? "border-emerald-500 scale-105"
                   : "border-transparent"
               }`}
               onClick={() => setMainImage(url)}

@@ -21,7 +21,7 @@ export const AISummary = ({
   return (
     <Card className="bg-gray-50/50 border-gray-200 shadow-sm">
       <CardHeader className="flex flex-row items-center gap-3">
-        <BotMessageSquare className="w-6 h-6 text-violet-500" />
+        <BotMessageSquare className="w-6 h-6 text-emerald-600" />
         <CardTitle className="text-xl font-bold text-gray-800">
           AI 서재 비서
         </CardTitle>

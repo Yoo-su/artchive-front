@@ -13,7 +13,7 @@ export const RecentSalesSlider = () => {
   const SliderHeader = () => (
     <div className="text-center mb-10">
       <h2 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl">
-        <span className="text-transparent bg-clip-text bg-gradient-to-r from-violet-500 to-blue-500">
+        <span className="text-transparent bg-clip-text bg-gradient-to-r from-emerald-500 to-teal-500">
           따끈따끈,
         </span>
         지금 막 올라왔어요!
