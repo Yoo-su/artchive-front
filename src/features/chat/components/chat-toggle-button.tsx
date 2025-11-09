@@ -35,7 +35,7 @@ export const ChatToggleButton = () => {
       </AnimatePresence>
       <Button
         size="icon"
-        className="h-14 w-14 rounded-full bg-violet-600 text-white shadow-2xl transition-transform duration-300 hover:scale-110 hover:bg-violet-700"
+        className="h-14 w-14 rounded-full bg-emerald-700 text-white shadow-2xl transition-transform duration-300 hover:scale-110 hover:bg-emerald-800"
         onClick={toggleChat}
       >
         <AnimatePresence initial={false}>

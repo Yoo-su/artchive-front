@@ -10,7 +10,7 @@ interface MainArtCardProps {
 export const MainArtCard = ({ item }: MainArtCardProps) => {
   return (
     <Link href={`/art/${item.mt20id}`} passHref>
-      <div className="group relative w-full h-[380px] rounded-xl overflow-hidden shadow-lg transition-all duration-300 ease-in-out transform-gpu hover:!scale-105 hover:shadow-2xl hover:shadow-violet-500/20">
+      <div className="group relative w-full h-[380px] rounded-xl overflow-hidden shadow-lg transition-all duration-300 ease-in-out transform-gpu hover:!scale-105 hover:shadow-2xl hover:shadow-emerald-500/20">
         {/* Background Image */}
         <Image
           src={item.poster}

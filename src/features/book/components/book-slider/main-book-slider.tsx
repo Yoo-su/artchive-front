@@ -136,7 +136,7 @@ export const MainBookSlider = () => {
             variant={activePublisher === publisher ? "default" : "outline"}
             className={`rounded-full cursor-pointer transition-all duration-300 ${
               activePublisher === publisher
-                ? "bg-violet-600 text-white shadow-lg scale-105"
+                ? "bg-emerald-700 text-white shadow-lg scale-105"
                 : "text-gray-600 bg-white"
             }`}
             onClick={() => setActivePublisher(publisher)}

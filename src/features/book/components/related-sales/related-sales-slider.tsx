@@ -43,7 +43,7 @@ export const RelatedSalesSlider = ({
             <div className="flex h-[395px] w-full items-center justify-center">
               <Button
                 variant="outline"
-                className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-gray-50 text-gray-500 hover:border-violet-300 hover:bg-violet-50 hover:text-violet-500"
+                className="flex h-full w-full flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-gray-50 text-gray-500 hover:border-emerald-300 hover:bg-emerald-50 hover:text-emerald-500"
                 onClick={() => fetchNextPage()}
                 disabled={isFetchingNextPage}
               >

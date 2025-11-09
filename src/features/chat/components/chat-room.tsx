@@ -51,7 +51,7 @@ const MessageBubble = ({
       <div
         className={`max-w-[70%] rounded-2xl px-4 py-2 ${
           isMine
-            ? "bg-violet-600 text-white rounded-br-none"
+            ? "bg-emerald-700 text-white rounded-br-none"
             : "bg-gray-100 text-gray-800 rounded-bl-none"
         }`}
       >
@@ -201,7 +201,7 @@ export const ChatRoom = ({
                     animate={{ y: 0, opacity: 1 }}
                     exit={{ y: 10, opacity: 0 }}
                     transition={{ duration: 0.2 }}
-                    className="text-xs text-violet-600 truncate"
+                    className="text-xs text-emerald-600 truncate"
                   >
                     {typingNickname}님이 입력 중...
                   </motion.p>

@@ -32,7 +32,7 @@ const InfoCard = ({
 }) => (
   <Card className="bg-white/5 border-white/10 text-gray-200">
     <CardHeader className="flex flex-row items-center gap-4 pb-2">
-      <Icon className="w-6 h-6 text-violet-400" />
+      <Icon className="w-6 h-6 text-emerald-400" />
       <CardTitle className="text-lg font-semibold">{title}</CardTitle>
     </CardHeader>
     <CardContent className="text-sm break-words">{children}</CardContent>
@@ -82,7 +82,7 @@ export const ArtDetail = ({ art }: ArtDetailProps) => {
         <div className="lg:col-span-3 space-y-12">
           {introImages.length > 0 && (
             <div className="w-full">
-              <h2 className="text-2xl font-bold mb-4 text-violet-300">
+              <h2 className="text-2xl font-bold mb-4 text-emerald-300">
                 공연 장면
               </h2>
               <Swiper
@@ -111,7 +111,7 @@ export const ArtDetail = ({ art }: ArtDetailProps) => {
 
           {hasSynopsis ? (
             <div>
-              <h2 className="text-2xl font-bold mb-4 text-violet-300">
+              <h2 className="text-2xl font-bold mb-4 text-emerald-300">
                 줄거리
               </h2>
               <p className="text-gray-300 leading-relaxed whitespace-pre-wrap">

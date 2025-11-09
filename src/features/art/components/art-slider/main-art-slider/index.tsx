@@ -24,8 +24,8 @@ const NoResults = () => (
     className="h-[380px] flex flex-col items-center justify-center text-center text-gray-400"
   >
     <div className="relative flex h-24 w-24 items-center justify-center rounded-full bg-white/10">
-      <div className="absolute h-full w-full animate-pulse rounded-full bg-violet-400/30 blur-xl"></div>
-      <Theater className="relative z-10 h-10 w-10 text-violet-300" />
+      <div className="absolute h-full w-full animate-pulse rounded-full bg-emerald-400/30 blur-xl"></div>
+      <Theater className="relative z-10 h-10 w-10 text-emerald-300" />
     </div>
     <p className="mt-6 text-lg font-semibold text-gray-300">
       앗, 아직 공연 정보가 없어요!
@@ -78,7 +78,7 @@ export const MainArtSlider = ({
               className={cn(
                 "rounded-full cursor-pointer px-4 py-1 transition-all duration-300 flex-shrink-0",
                 activeGenre === chip.genreCode
-                  ? "bg-violet-500 text-white shadow-lg scale-105 border-violet-500"
+                  ? "bg-emerald-600 text-white shadow-lg scale-105 border-emerald-600"
                   : "text-gray-300 bg-white/10 border-white/20 hover:bg-white/20 hover:text-white"
               )}
               onClick={() => setActiveGenre(chip.genreCode)}

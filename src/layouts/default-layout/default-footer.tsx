@@ -15,7 +15,7 @@ export const DefaultFooter = () => {
             href="/"
             className="flex items-center gap-2 text-lg font-bold text-gray-700 transition-colors hover:text-gray-900"
           >
-            <BookHeart className="h-6 w-6 text-violet-500" />
+            <BookHeart className="h-6 w-6 text-emerald-600" />
             <span>ArtChive</span>
           </Link>
         </div>
