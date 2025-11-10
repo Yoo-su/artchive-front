@@ -83,13 +83,13 @@ Next.js 13+의 App Router를 사용하여 라우팅을 관리합니다. 특히, 
 | **Framework**      | ![Next.js](https://img.shields.io/badge/Next.js-000000?logo=nextdotjs&logoColor=white)             | SSR, SSG, App Router 등 현대적인 웹 앱 개발에 필요한 기능을 통합 제공하여 생산성과 성능을 모두 확보했습니다.                 |
 | **Language**       | ![TypeScript](https://img.shields.io/badge/TypeScript-3178C6?logo=typescript&logoColor=white)      | 정적 타입을 통해 코드의 안정성과 예측 가능성을 높이고, 대규모 애플리케이션에서의 협업 효율을 증대시켰습니다.                 |
 | **Styling**        | ![Tailwind CSS](https://img.shields.io/badge/Tailwind_CSS-06B6D4?logo=tailwindcss&logoColor=white) | Utility-First 접근 방식으로 빠르고 일관된 UI 개발을 가능하게 하며, 커스터마이징이 용이합니다.                                |
-| **UI Components**  | **shadcn/ui**                                                                                      | 재사용 가능하고 접근성 높은 컴포넌트 구성을 제공하며, 코드 베이스에 직접 추가하여 자유롭게 수정할 수 있습니다.               |
+| **UI Components**  | ![shadcn/ui](https://img.shields.io/badge/shadcn%2Fui-000000?logo=shadcnui&logoColor=white) | 재사용 가능하고 접근성 높은 컴포넌트 구성을 제공하며, 코드 베이스에 직접 추가하여 자유롭게 수정할 수 있습니다.               |
 | **Animation**      | ![Framer Motion](https://img.shields.io/badge/Framer_Motion-0055FF?logo=framer&logoColor=white)    | 선언적인 API를 통해 복잡한 애니메이션과 인터랙션을 쉽게 구현하여 사용자 경험의 질을 높였습니다.                              |
-| **Server State**   | **TanStack Query**                                                                                 | API 요청, 캐싱, 동기화 등 서버 상태 관리를 자동화하여 보일러플레이트를 줄이고 데이터 흐름을 안정적으로 관리합니다.           |
-| **Client State**   | ![Zustand](https://img.shields.io/badge/Zustand-592815?logo=zustand&logoColor=white)               | 가볍고 간결한 API로 전역 UI 상태(e.g., 채팅 위젯 상태)를 관리하며, Context API의 단점을 보완합니다.                          |
-| **Forms**          | **React Hook Form** + **Zod**                                                                      | 폼 상태 관리의 복잡성을 줄이고, Zod 스키마를 통해 타입 추론과 유효성 검사를 동시에 처리하여 안정성을 높였습니다.             |
-| **Authentication** | **NestJS Backend (JWT)**                                                                           | 백엔드에서 소셜 로그인(OAuth) 처리 및 JWT(Access/Refresh Token) 발급을 모두 담당합니다. 프론트엔드는 토큰을 받아 사용합니다. |
-| **Real-time**      | **Socket.IO Client**                                                                               | 실시간 양방향 통신을 위한 표준 라이브러리로, 채팅 기능 구현에 필수적인 웹소켓 연결을 안정적으로 관리합니다.                  |
+| **Server State**   | ![TanStack Query](https://img.shields.io/badge/TanStack_Query-FF4154?logo=reactquery&logoColor=white) | API 요청, 캐싱, 동기화 등 서버 상태 관리를 자동화하여 보일러플레이트를 줄이고 데이터 흐름을 안정적으로 관리합니다.           |
+| **Client State**   | ![Zustand](https://img.shields.io/badge/Zustand-433E38?logo=react&logoColor=white) | 가볍고 간결한 API로 전역 UI 상태(e.g., 채팅 위젯 상태)를 관리하며, Context API의 단점을 보완합니다.                          |
+| **Forms**          | ![React Hook Form](https://img.shields.io/badge/React_Hook_Form-EC5990?logo=reacthookform&logoColor=white) | 폼 상태 관리의 복잡성을 줄이고, Zod 스키마를 통해 타입 추론과 유효성 검사를 동시에 처리하여 안정성을 높였습니다.             |
+| **Authentication** | ![NestJS](https://img.shields.io/badge/NestJS-E0234E?logo=nestjs&logoColor=white) | 백엔드에서 소셜 로그인(OAuth) 처리 및 JWT(Access/Refresh Token) 발급을 모두 담당합니다. 프론트엔드는 토큰을 받아 사용합니다. |
+| **Real-time**      | ![Socket.io](https://img.shields.io/badge/Socket.io-010101?logo=socketdotio&logoColor=white) | 실시간 양방향 통신을 위한 표준 라이브러리로, 채팅 기능 구현에 필수적인 웹소켓 연결을 안정적으로 관리합니다.                  |
 | **Deployment**     | ![Vercel](https://img.shields.io/badge/Vercel-000000?logo=vercel&logoColor=white)                  | Next.js에 최적화된 배포 환경과 CI/CD 파이프라인을 제공하여 개발부터 배포까지의 과정을 자동화했습니다.                        |
 
 ---
@@ -122,16 +122,19 @@ Google의 Gemini LLM을 활용하여 책 상세 정보 페이지에 'AI 요약'�
 
 ## 💻 서비스 화면 (Service Preview)
 
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/f553b0fa-aa35-4f96-9b46-655d3cd876ef" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/68f968a2-fc37-4057-a946-60810b111cd1" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/2d584a48-500b-4ca8-9833-fa0cb9428cb4" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/5d0a8740-5c08-4b3f-933d-81521a2a7fc5" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b01cb24c-666d-485c-b3c4-3b2ddaa62944" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/9dcca7ad-0041-4108-ac8b-002346d24e53" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/f0229bdd-0b25-4ae2-bc5b-9753ccf58610" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/480b5319-9cb1-48e6-965c-68f3c2290258" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/b6ad653e-c691-4620-8ed9-7d452d96f248" />
-<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/cf3068c5-630c-45bf-b9c3-5aeb9a4d5b28" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/747f0e22-56a2-4eca-aa53-8124deed210f" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/9ab2f20f-964a-4928-8bf9-1949f72e539d" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/d468dd4a-87ab-45a4-b0d9-a21fb43734f6" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/24039b9f-f524-4c87-a7fe-64f1ff84dadb" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/548cf753-ea50-4241-bf3d-58e0be1518cf" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/bc6046be-4d1d-4ec1-a095-68f688ecdcf5" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/623bbecd-9993-44ca-a94f-9639f01c5b05" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/aec79ee5-e96c-4ed2-94be-9807e4650ef2" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/9249ed9a-59ff-470b-958c-a99e228395da" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/618ce65a-593c-4450-9e3a-b054ef23dcf1" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/5bc61c89-965d-4743-b257-c74d1e2f19d7" />
+<img width="1470" height="956" alt="image" src="https://github.com/user-attachments/assets/afeb2a57-69fc-42d1-9a36-50e83282a44c" />
+
 
 ---
 
