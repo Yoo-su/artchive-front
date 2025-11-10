@@ -1,4 +1,3 @@
-// actions/user.actions.ts
 "use server";
 
 import { cookies } from "next/headers";
@@ -14,7 +13,7 @@ export async function getUserProfile(): Promise<User | null> {
   }
 
   try {
-    const BACKEND_URL = process.env.API_URL || "http://localhost:8000";
+    const BACKEND_URL = process.env.API_URL;
     const response = await fetch(`${BACKEND_URL}/auth/user`, {
       headers: {
         Cookie: `accessToken=${token.value}`,
