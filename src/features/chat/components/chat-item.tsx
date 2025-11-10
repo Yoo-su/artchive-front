@@ -7,7 +7,7 @@ import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
 import { useState } from "react";
 
-import { useGetUser } from "@/features/auth/queries";
+import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
   AvatarFallback,
@@ -28,7 +28,7 @@ const formatLastMessageTime = (date: string) => {
 
 export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const { openChatRoom } = useChatStore();
-  const { data: currentUser } = useGetUser();
+  const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const [isOpening, setIsOpening] = useState(false);
 

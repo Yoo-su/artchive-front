@@ -7,7 +7,7 @@ import { ArrowLeft, Loader2, LogOut, SendHorizontal } from "lucide-react";
 import Image from "next/image";
 import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 
-import { useGetUser } from "@/features/auth/queries";
+import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
   AvatarFallback,
@@ -87,7 +87,7 @@ export const ChatRoom = ({
   emitStopTyping,
 }: ChatRoomProps) => {
   const { closeChatRoom, leaveRoom, isRoomInactive } = useChatStore();
-  const { data: currentUser } = useGetUser();
+  const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);

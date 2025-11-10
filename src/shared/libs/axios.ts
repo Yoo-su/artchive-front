@@ -1,6 +1,7 @@
 import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
 
 import { logout } from "@/features/auth/apis";
+import { useAuthStore } from "@/features/auth/store";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
@@ -53,29 +54,29 @@ axiosInstance.interceptors.response.use(
         })
           .then(() => axiosInstance(originalRequest))
           .catch((err) => Promise.reject(err)); // 명시적으로 에러 reject
-      }
+      } else if (useAuthStore.getState().user) {
+        originalRequest._retry = true;
+        isRefreshing = true;
 
-      originalRequest._retry = true;
-      isRefreshing = true;
-
-      try {
-        await axiosInstance.post("/auth/refresh");
-        processQueue(null, null);
-        return axiosInstance(originalRequest);
-      } catch (refreshError) {
-        processQueue(refreshError as AxiosError, null);
-
-        // 로그아웃 처리
         try {
-          await logout();
-        } catch (logoutError) {
-          console.error("logout error:", logoutError);
-        }
+          await axiosInstance.post("/auth/refresh");
+          processQueue(null, null);
+          return axiosInstance(originalRequest);
+        } catch (refreshError) {
+          processQueue(refreshError as AxiosError, null);
 
-        // 원래 요청도 명시적으로 reject
-        return Promise.reject(refreshError);
-      } finally {
-        isRefreshing = false;
+          // 로그아웃 처리
+          try {
+            await logout();
+          } catch (logoutError) {
+            console.error("logout error:", logoutError);
+          }
+
+          // 원래 요청도 명시적으로 reject
+          return Promise.reject(refreshError);
+        } finally {
+          isRefreshing = false;
+        }
       }
     }
 

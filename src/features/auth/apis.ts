@@ -1,4 +1,5 @@
 import { queryClient } from "@/shared/constants/query-client";
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
 import { axiosInstance } from "@/shared/libs/axios";
 
 import { User } from "./types";
@@ -10,12 +11,6 @@ export const getUser = async () => {
 
 export const logout = async () => {
   await axiosInstance.post("/auth/logout").finally(() => {
-    // Clear any client-side user state here.
-    // e.g., useUserStore.getState().clearUser();
-    queryClient.clear();
-    if (typeof window !== "undefined") {
-      // Hard redirect to the login page to clear all application state.
-      window.location.href = "/login";
-    }
+    window.location.reload();
   });
 };

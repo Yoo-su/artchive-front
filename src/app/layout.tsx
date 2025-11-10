@@ -12,6 +12,7 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
 
+import { getUserProfile } from "@/shared/actions/get-user";
 import { QueryProvider } from "@/shared/providers";
 import { ChatProvider } from "@/shared/providers/chat-provider";
 import UserProvider from "@/shared/providers/user-provider";
@@ -63,11 +64,13 @@ const pretendard = localFont({
   preload: false,
 });
 
-export default function Layout({
+export default async function Layout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const user = await getUserProfile();
+
   return (
     <html
       lang="ko"
@@ -75,7 +78,7 @@ export default function Layout({
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <QueryProvider>
-          <UserProvider>
+          <UserProvider user={user}>
             <ChatProvider>{children}</ChatProvider>
           </UserProvider>
 
