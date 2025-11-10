@@ -12,7 +12,6 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
 
-import { getUserProfile } from "@/shared/actions/get-user-profile";
 import { QueryProvider } from "@/shared/providers";
 import { ChatProvider } from "@/shared/providers/chat-provider";
 import UserProvider from "@/shared/providers/user-provider";
@@ -69,8 +68,6 @@ export default async function Layout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const user = await getUserProfile();
-
   return (
     <html
       lang="ko"
@@ -78,7 +75,7 @@ export default async function Layout({
     >
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <QueryProvider>
-          <UserProvider user={user}>
+          <UserProvider>
             <ChatProvider>{children}</ChatProvider>
           </UserProvider>
 
