@@ -5,7 +5,7 @@ import { NextResponse } from "next/server";
 export async function middleware(request: NextRequest) {
   const token = request.cookies.get("accessToken");
   const { pathname } = request.nextUrl;
-
+  console.log(token?.value, "check accessToken");
   console.log("Middleware executed for:", pathname);
 
   // 인증이 필요한 경로들
