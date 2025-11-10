@@ -7,7 +7,7 @@ import { User } from "@/features/auth/types";
 export async function getUserProfile(): Promise<User | null> {
   const cookieStore = await cookies();
   const token = cookieStore.get("accessToken");
-
+  console.log(token?.value, "token check - getUserProfile");
   if (!token) {
     return null;
   }
