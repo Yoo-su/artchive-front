@@ -2,7 +2,7 @@
 
 import { AlertTriangle } from "lucide-react";
 
-import { useGetUser } from "@/features/auth/queries";
+import { useAuthStore } from "@/features/auth/store";
 import { BookSaleActions } from "@/features/book/components/book-sale-detail/book-sale-actions";
 import { BookSaleInfo } from "@/features/book/components/book-sale-detail/book-sale-info";
 import { BookSaleDetailSkeleton } from "@/features/book/components/book-sale-detail/skeleton";
@@ -12,7 +12,7 @@ interface BookSaleDetailViewProps {
   saleId: string;
 }
 export const BookSaleDetailView = ({ saleId }: BookSaleDetailViewProps) => {
-  const { data: currentUser } = useGetUser();
+  const currentUser = useAuthStore((state) => state.user);
   const {
     data: sale,
     isLoading,

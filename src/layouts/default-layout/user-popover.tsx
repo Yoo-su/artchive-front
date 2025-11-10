@@ -4,8 +4,7 @@ import { LogIn } from "lucide-react";
 import Link from "next/link";
 
 import { useLogoutMutation } from "@/features/auth/mutations";
-import { useGetUser } from "@/features/auth/queries";
-// Shadcn/ui 컴포넌트 임포트
+import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
   AvatarFallback,
@@ -20,10 +19,8 @@ import {
 import { Separator } from "@/shared/components/shadcn/separator";
 
 export default function UserPopover() {
-  const { data: user, isLoading } = useGetUser();
+  const user = useAuthStore((state) => state.user);
   const { mutate: logout } = useLogoutMutation();
-
-  if (isLoading) return null;
 
   if (!user) {
     return (
