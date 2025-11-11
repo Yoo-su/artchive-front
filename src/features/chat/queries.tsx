@@ -8,7 +8,7 @@ export const useMyChatRoomsQuery = () => {
   return useQuery({
     queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
     queryFn: getMyChatRooms,
-    staleTime: 0,
+    staleTime: Infinity,
   });
 };
 
