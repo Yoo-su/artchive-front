@@ -89,7 +89,7 @@ export const useUpdateBookSaleStatusMutation = () => {
       }
     },
     onSettled: () => {
-      queryClient.invalidateQueries({ queryKey });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookKeys._def });
     },
   });
 };
@@ -178,9 +178,7 @@ export const useDeleteBookSaleMutation = () => {
     },
     onSuccess: (_, { saleId }) => {
       alert("판매글이 삭제되었습니다.");
-      queryClient.invalidateQueries({
-        queryKey: QUERY_KEYS.bookKeys.mySales.queryKey,
-      });
+      queryClient.invalidateQueries({ queryKey: QUERY_KEYS.bookKeys._def });
       // 현재 페이지가 삭제된 게시글 상세 페이지일 경우 홈으로 이동
       if (window.location.pathname.includes(`/book/sale/${saleId}`)) {
         router.push("/my-page/sales");
