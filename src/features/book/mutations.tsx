@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
+import { useAuthStore } from "../auth/store";
 import { deleteImages } from "./actions/delete-action";
 import { uploadImages } from "./actions/upload-action";
 import {
@@ -26,17 +27,19 @@ interface CreateSaleVariables {
 }
 export const useCreateBookSaleMutation = () => {
   const router = useRouter();
+  const { provider, id } = useAuthStore((state) => state.user)!;
 
   return useMutation<UsedBookSale, Error, CreateSaleVariables>({
     mutationFn: async ({ imageFiles, payload }) => {
       // 1. 클라이언트에서 직접 Vercel Blob으로 이미지 업로드
       const blobs = await Promise.all(
-        imageFiles.map((file) =>
-          upload(file.name, file, {
+        imageFiles.map((file) => {
+          const filePath = `${provider}-${id}/sales-images/${file.name}`;
+          return upload(filePath, file, {
             access: "public",
             handleUploadUrl: "/api/upload",
-          })
-        )
+          });
+        })
       );
       const imageUrls = blobs.map((blob) => blob.url);
 
@@ -103,10 +106,10 @@ interface UpdateSaleVariables {
   newImageFiles?: File[];
   deletedImageUrls?: string[];
 }
-
 export const useUpdateBookSaleMutation = () => {
   const router = useRouter();
   const queryClient = useQueryClient();
+  const { provider, id } = useAuthStore((state) => state.user)!;
 
   return useMutation<UsedBookSale, Error, UpdateSaleVariables>({
     mutationFn: async ({
@@ -125,7 +128,7 @@ export const useUpdateBookSaleMutation = () => {
       if (newImageFiles.length > 0) {
         const formData = new FormData();
         newImageFiles.forEach((file) => formData.append("images", file));
-        const uploadResult = await uploadImages(formData);
+        const uploadResult = await uploadImages(formData, provider, id);
         if (!uploadResult.success || !uploadResult.blobs) {
           throw new Error("새 이미지 업로드에 실패했습니다.");
         }

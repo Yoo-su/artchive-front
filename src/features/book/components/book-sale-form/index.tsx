@@ -33,7 +33,7 @@ import {
 import { Textarea } from "@/shared/components/shadcn/textarea";
 import { KOREA_DISTRICTS } from "@/shared/constants/korea-districts";
 
-import { useCreateBookSaleMutation } from "../../mutations"; // ⭐️ 1단계에서 만든 Hook을 임포트
+import { useCreateBookSaleMutation } from "../../mutations";
 import { BookInfo, CreateBookSaleParams } from "../../types";
 import { sellFormSchema, SellFormValues } from "./schema";
 
@@ -44,7 +44,6 @@ interface BookSaleFormProps {
 export const BookSaleForm = ({ bookInfo }: BookSaleFormProps) => {
   const [imagePreviews, setImagePreviews] = useState<string[]>([]);
 
-  // ⭐️ 로직을 분리한 Mutation Hook을 사용합니다.
   const { mutate, isPending } = useCreateBookSaleMutation();
 
   const form = useForm<SellFormValues>({
