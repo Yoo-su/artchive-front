@@ -24,7 +24,11 @@ const ImageSchema = z
     "지원되지 않는 이미지 형식입니다."
   );
 
-export async function uploadImages(formData: FormData) {
+export async function uploadImages(
+  formData: FormData,
+  provider: string,
+  id: number
+) {
   const imageFiles = formData.getAll("images") as File[];
 
   try {
@@ -39,7 +43,7 @@ export async function uploadImages(formData: FormData) {
     // 모든 파일을 Vercel Blob에 병렬로 업로드
     const blobs = await Promise.all(
       imageFiles.map((file) =>
-        put(`book-images/${crypto.randomUUID()}-${file.name}`, file, {
+        put(`${provider}-${id}/sales-images/${file.name}`, file, {
           access: "public", // 업로드된 파일을 공개적으로 접근 가능하게 설정
         })
       )
