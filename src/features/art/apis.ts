@@ -1,3 +1,4 @@
+import { API_PATHS } from "@/shared/constants/apis";
 import { internalAxios } from "@/shared/libs/axios";
 import { getSimpleDate } from "@/shared/utils/date";
 
@@ -40,7 +41,7 @@ export const getArtList = async (
   searchParams.set("endDate", endDateStr);
   searchParams.set("signgucode", params.signgucode ?? DEFAULT_CITY_CODE);
 
-  const url = `/art-list?${searchParams.toString()}`;
+  const url = `${API_PATHS.art.list}?${searchParams.toString()}`;
   const { data } = await internalAxios.get(url);
 
   return data;
@@ -53,7 +54,7 @@ export const getArtList = async (
 export const getArtDetail = async (
   artId: string
 ): Promise<GetArtDetailResponse> => {
-  const { data } = await internalAxios.get(`/art-detail/${artId}`);
+  const { data } = await internalAxios.get(API_PATHS.art.detail(artId));
 
   return data;
 };

@@ -10,11 +10,13 @@ import {
   getMyBookSales,
   getRecentBookSales,
   getRelatedSales,
+  searchBookSales,
 } from "./apis";
 import { DEFAULT_DISPLAY } from "./constants";
 import {
   BookInfo,
   GetBookListParams,
+  SearchBookSalesParams,
   UseInfiniteRelatedSalesQueryProps,
 } from "./types";
 
@@ -70,6 +72,18 @@ export const useInfiniteBookSearch = (query: string) => {
       return lastPage.currentPage + 1;
     },
     enabled: !!query, // query가 있을 때만 쿼리를 실행합니다.
+  });
+};
+
+export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
+  return useInfiniteQuery({
+    queryKey: QUERY_KEYS.bookKeys.marketSales(params).queryKey,
+    queryFn: ({ pageParam = 1 }) =>
+      searchBookSales({ ...params, page: pageParam }),
+    initialPageParam: 1,
+    getNextPageParam: (lastPage) => {
+      return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
+    },
   });
 };
 

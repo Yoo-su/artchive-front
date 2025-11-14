@@ -1,18 +1,34 @@
-import axios, { AxiosError, InternalAxiosRequestConfig } from "axios";
+import axios, {
+  AxiosError,
+  AxiosResponse,
+  InternalAxiosRequestConfig,
+} from "axios";
 
 import { logout } from "@/features/auth/apis";
 import { useAuthStore } from "@/features/auth/store";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
 
-export const axiosInstance = axios.create({
+export const publicAxios = axios.create({
   baseURL,
-  withCredentials: true,
 });
 
-export const internalAxios = axios.create({
-  baseURL: "/api",
+export const privateAxios = axios.create({
+  baseURL,
 });
+
+privateAxios.interceptors.request.use(
+  (config: InternalAxiosRequestConfig): InternalAxiosRequestConfig => {
+    const accessToken = useAuthStore.getState().accessToken;
+    if (accessToken) {
+      config.headers.Authorization = `Bearer ${accessToken}`;
+    }
+    return config;
+  },
+  (error: AxiosError): Promise<AxiosError> => {
+    return Promise.reject(error);
+  }
+);
 
 let isRefreshing = false;
 let failedQueue: {
@@ -34,52 +50,71 @@ const processQueue = (
   failedQueue = [];
 };
 
-axiosInstance.interceptors.response.use(
-  (response) => response,
+privateAxios.interceptors.response.use(
+  (response: AxiosResponse): AxiosResponse => {
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & {
       _retry?: boolean;
     };
 
-    // refresh 요청 자체는 재시도하지 않음
     if (originalRequest.url?.includes("/auth/refresh")) {
       return Promise.reject(error);
     }
 
-    // 401 Unauthorized
     if (error.response?.status === 401 && !originalRequest._retry) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
         })
-          .then(() => axiosInstance(originalRequest))
-          .catch((err) => Promise.reject(err)); // 명시적으로 에러 reject
-      } else if (useAuthStore.getState().user) {
-        originalRequest._retry = true;
-        isRefreshing = true;
+          .then(() => privateAxios(originalRequest))
+          .catch((err) => Promise.reject(err));
+      }
 
-        try {
-          await axiosInstance.post("/auth/refresh");
-          processQueue(null, null);
-          return axiosInstance(originalRequest);
-        } catch (refreshError) {
-          processQueue(refreshError as AxiosError, null);
+      originalRequest._retry = true;
+      isRefreshing = true;
 
-          // 로그아웃 처리
-          try {
-            await logout();
-          } catch (logoutError) {
-            console.error("logout error:", logoutError);
+      const refreshToken = useAuthStore.getState().refreshToken;
+      if (!refreshToken) {
+        return Promise.reject(error);
+      }
+
+      try {
+        const { data } = await publicAxios.post(
+          `/auth/refresh`,
+          {},
+          {
+            headers: {
+              Authorization: `Bearer ${refreshToken}`,
+            },
           }
+        );
 
-          // 원래 요청도 명시적으로 reject
-          return Promise.reject(refreshError);
-        } finally {
-          isRefreshing = false;
-        }
+        const { accessToken: newAccessToken, refreshToken: newRefreshToken } =
+          data;
+        useAuthStore.getState().setTokens({
+          accessToken: newAccessToken,
+          refreshToken: newRefreshToken,
+        });
+
+        originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
+        processQueue(null, newAccessToken);
+        return privateAxios(originalRequest);
+      } catch (refreshError) {
+        processQueue(refreshError as AxiosError, null);
+        useAuthStore.getState().clearAuth();
+        logout();
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
     return Promise.reject(error);
   }
 );
+
+export const internalAxios = axios.create({
+  baseURL: "/api",
+});

@@ -159,3 +159,24 @@ export type GetMyBookSalesResponse = {
   success: boolean;
   sales: UsedBookSale[];
 };
+
+export interface SearchBookSalesParams {
+  page?: number;
+  limit?: number;
+  search?: string;
+  city?: string;
+  district?: string;
+  minPrice?: number;
+  maxPrice?: number;
+  status?: SaleStatus[];
+  sortBy?: string; // 'createdAt' | 'price'
+  sortOrder?: string; // 'ASC' | 'DESC'
+}
+
+export interface SearchBookSalesResponse {
+  sales: UsedBookSale[];
+  total: number;
+  page: number;
+  limit: number;
+  hasNextPage: boolean;
+}

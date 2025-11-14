@@ -1,4 +1,5 @@
-import { axiosInstance,internalAxios } from "@/shared/libs/axios";
+import { API_PATHS } from "@/shared/constants/apis";
+import { internalAxios, privateAxios, publicAxios } from "@/shared/libs/axios";
 
 import { DEFAULT_DISPLAY, DEFAULT_SORT, DEFAULT_START } from "./constants";
 import {
@@ -12,6 +13,8 @@ import {
   GetMyBookSalesResponse,
   GetRelatedSalesParams,
   GetRelatedSalesResponse,
+  SearchBookSalesParams,
+  SearchBookSalesResponse,
   UpdateBookSaleParams,
   UsedBookSale,
 } from "./types";
@@ -28,8 +31,7 @@ export const getBookList = async (
   const startParam = (params.start ?? DEFAULT_START).toString();
   const sortParam = params.sort ?? DEFAULT_SORT;
 
-  const url = "/book-list";
-  const { data } = await internalAxios.get(url, {
+  const { data } = await internalAxios.get(API_PATHS.book.list, {
     params: {
       query: params.query,
       display: displayParam,
@@ -49,8 +51,7 @@ export const getBookList = async (
 export const getBookDetail = async (
   isbn: string
 ): Promise<GetBookDetailSuccessResponse | GetBookDetailErrorResponse> => {
-  const url = "/book-detail";
-  const { data } = await internalAxios.get(url, {
+  const { data } = await internalAxios.get(API_PATHS.book.detail, {
     params: {
       isbn,
     },
@@ -67,8 +68,8 @@ export const getBookDetail = async (
 export const createBookSale = async (
   payload: CreateBookSaleParams
 ): Promise<CommonBookSaleResponse> => {
-  const { data } = await axiosInstance.post<CommonBookSaleResponse>(
-    "/book/sale",
+  const { data } = await privateAxios.post<CommonBookSaleResponse>(
+    API_PATHS.book.sale,
     payload
   );
 
@@ -79,8 +80,9 @@ export const createBookSale = async (
  * 내가 등록한 중고책 판매글 목록 조회 API
  */
 export const getMyBookSales = async (): Promise<GetMyBookSalesResponse> => {
-  const { data } =
-    await axiosInstance.get<GetMyBookSalesResponse>("/user/my-sales");
+  const { data } = await privateAxios.get<GetMyBookSalesResponse>(
+    API_PATHS.book.mySales
+  );
   return data;
 };
 
@@ -94,8 +96,8 @@ export const updateBookSaleStatus = async ({
   saleId: number;
   status: string;
 }): Promise<CommonBookSaleResponse> => {
-  const { data } = await axiosInstance.patch<CommonBookSaleResponse>(
-    `/book/sales/${saleId}/status`,
+  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
+    API_PATHS.book.saleStatus(saleId),
     {
       status,
     }
@@ -105,8 +107,8 @@ export const updateBookSaleStatus = async ({
 
 /** 특정 판매글 상세 정보 조회 API */
 export const getBookSaleDetail = async (saleId: string) => {
-  const { data } = await axiosInstance.get<UsedBookSale>(
-    `/book/sales/${saleId}`
+  const { data } = await publicAxios.get<UsedBookSale>(
+    API_PATHS.book.saleDetail(saleId)
   );
   return data;
 };
@@ -128,8 +130,8 @@ export const getRelatedSales = async ({
   if (city) params.append("city", city);
   if (district) params.append("district", district);
 
-  const response = await axiosInstance.get<GetRelatedSalesResponse>(
-    `/book/${isbn}/sales`,
+  const response = await publicAxios.get<GetRelatedSalesResponse>(
+    API_PATHS.book.relatedSales(isbn),
     { params }
   );
   return response.data;
@@ -147,8 +149,8 @@ export const updateBookSale = async ({
   saleId: number;
   payload: UpdateBookSaleParams;
 }) => {
-  const { data } = await axiosInstance.patch<CommonBookSaleResponse>(
-    `/book/sales/${saleId}`,
+  const { data } = await privateAxios.patch<CommonBookSaleResponse>(
+    API_PATHS.book.updateSale(saleId),
     payload
   );
   return data;
@@ -156,25 +158,51 @@ export const updateBookSale = async ({
 
 /**
  * 중고책 판매글 삭제 API
- * @param saleId - 삭제할 판매글 ID
+ @param saleId - 삭제할 판매글 ID
  */
 export const deleteBookSale = async (saleId: number) => {
-  await axiosInstance.delete(`/book/sales/${saleId}`);
+  await privateAxios.delete(API_PATHS.book.deleteSale(saleId));
 };
 
 /**
  * 최근 등록된 중고책 판매글 목록 조회 API
  */
 export const getRecentBookSales = async (): Promise<UsedBookSale[]> => {
-  const { data } =
-    await axiosInstance.get<UsedBookSale[]>("/book/sales/recent");
+  const { data } = await publicAxios.get<UsedBookSale[]>(
+    API_PATHS.book.recentSales
+  );
   return data;
 };
 
 export const getBookSummary = async (title: string, author: string) => {
-  const { data } = await axiosInstance.post("/llm/book-summary", {
+  const { data } = await privateAxios.post(API_PATHS.book.summary, {
     title,
     author,
   });
+  return data;
+};
+
+export const searchBookSales = async (
+  params: SearchBookSalesParams
+): Promise<SearchBookSalesResponse> => {
+  const queryParams = new URLSearchParams();
+
+  // Append all defined parameters
+  Object.entries(params).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== "") {
+      if (Array.isArray(value)) {
+        value.forEach((v) => queryParams.append(key, v));
+      } else {
+        queryParams.append(key, String(value));
+      }
+    }
+  });
+
+  const queryString = queryParams.toString();
+  const url = queryString
+    ? `${API_PATHS.book.sales}?${queryString}`
+    : API_PATHS.book.sales;
+
+  const { data } = await publicAxios.get<SearchBookSalesResponse>(url);
   return data;
 };

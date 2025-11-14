@@ -1,4 +1,4 @@
-import { Clock } from "lucide-react";
+import { Clock, MapPin } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
@@ -8,17 +8,23 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
-import { Card, CardContent } from "@/shared/components/shadcn/card";
+import {
+  Card,
+  CardContent,
+  CardFooter,
+  CardHeader,
+} from "@/shared/components/shadcn/card";
+import { Skeleton } from "@/shared/components/shadcn/skeleton";
 import { formatPostDate } from "@/shared/utils/date";
 
 import { UsedBookSale } from "../../types";
-import { SaleStatusBadge } from "../common/sale-status-badge";
+import { SaleStatusBadge } from "./sale-status-badge";
 
 interface SaleCardProps {
   sale: UsedBookSale;
   idx: number;
 }
-export const SaleCard = ({ sale, idx }: SaleCardProps) => {
+export const BookSaleCard = ({ sale, idx }: SaleCardProps) => {
   const displayDate =
     sale.updatedAt > sale.createdAt ? sale.updatedAt : sale.createdAt;
 
@@ -54,6 +60,12 @@ export const SaleCard = ({ sale, idx }: SaleCardProps) => {
               <Clock className="w-3.5 h-3.5 mr-1.5" />
               <span>{formatPostDate(displayDate)}</span>
             </div>
+            <div className="flex items-center text-xs text-gray-500 mt-1">
+              <MapPin className="w-3.5 h-3.5 mr-1.5 flex-shrink-0" />
+              <span className="truncate">
+                {sale.city} {sale.district}
+              </span>
+            </div>
             <div className="mt-4 flex items-center gap-2 border-t pt-3">
               <Avatar className="h-6 w-6">
                 <AvatarImage src={sale.user.profileImageUrl || ""} />
@@ -70,5 +82,33 @@ export const SaleCard = ({ sale, idx }: SaleCardProps) => {
         <BorderBeam duration={8} delay={idx * 10} />
       </Card>
     </Link>
+  );
+};
+
+BookSaleCard.Skeleton = function BookSaleCardSkeleton() {
+  return (
+    <Card className="h-full w-full overflow-hidden">
+      <CardContent className="p-0">
+        <div className="relative h-48 w-full overflow-hidden">
+          <Skeleton className="h-full w-full" />
+        </div>
+        <div className="p-4 pb-0">
+          <Skeleton className="h-6 w-3/4" />
+          <Skeleton className="mt-2 h-7 w-1/2" />
+          <div className="mt-2 flex items-center text-xs text-gray-500">
+            <Skeleton className="mr-1.5 h-3.5 w-3.5" />
+            <Skeleton className="h-4 w-24" />
+          </div>
+          <div className="mt-1 flex items-center text-xs text-gray-500">
+            <Skeleton className="mr-1.5 h-3.5 w-3.5" />
+            <Skeleton className="h-4 w-32" />
+          </div>
+          <div className="mt-4 flex items-center gap-2 border-t pt-3">
+            <Skeleton className="h-6 w-6 rounded-full" />
+            <Skeleton className="h-5 w-20" />
+          </div>
+        </div>
+      </CardContent>
+    </Card>
   );
 };
