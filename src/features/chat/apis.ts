@@ -1,4 +1,5 @@
-import { axiosInstance } from "@/shared/libs/axios";
+import { API_PATHS } from "@/shared/constants/apis";
+import { privateAxios } from "@/shared/libs/axios";
 
 import { ChatRoom, GetChatMessagesResponse } from "./types";
 
@@ -7,7 +8,7 @@ import { ChatRoom, GetChatMessagesResponse } from "./types";
  * @param saleId - 판매글 ID
  */
 export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
-  const response = await axiosInstance.post<ChatRoom>("/chat/rooms", {
+  const response = await privateAxios.post<ChatRoom>(API_PATHS.chat.rooms, {
     saleId,
   });
   return response.data;
@@ -17,7 +18,7 @@ export const findOrCreateRoom = async (saleId: number): Promise<ChatRoom> => {
  * 현재 로그인한 유저의 모든 채팅방 목록을 조회하는 API
  */
 export const getMyChatRooms = async (): Promise<ChatRoom[]> => {
-  const response = await axiosInstance.get<ChatRoom[]>("/chat/rooms");
+  const response = await privateAxios.get<ChatRoom[]>(API_PATHS.chat.rooms);
   return response.data;
 };
 
@@ -29,8 +30,8 @@ export const getChatMessages = async (
   page: number,
   limit: number = 20
 ): Promise<GetChatMessagesResponse> => {
-  const response = await axiosInstance.get<GetChatMessagesResponse>(
-    `/chat/rooms/${roomId}/messages`,
+  const response = await privateAxios.get<GetChatMessagesResponse>(
+    API_PATHS.chat.messages(roomId),
     { params: { page, limit } }
   );
   return response.data;
@@ -40,7 +41,7 @@ export const getChatMessages = async (
  * 특정 채팅방의 메시지를 모두 읽음으로 처리하는 API 함수
  */
 export const markMessagesAsRead = async (roomId: number) => {
-  const response = await axiosInstance.patch(`/chat/rooms/${roomId}/read`);
+  const response = await privateAxios.patch(API_PATHS.chat.read(roomId));
   return response.data;
 };
 
@@ -49,6 +50,6 @@ export const markMessagesAsRead = async (roomId: number) => {
  * @param roomId - 나갈 채팅방의 ID
  */
 export const leaveChatRoom = async (roomId: number) => {
-  const response = await axiosInstance.delete(`/chat/rooms/${roomId}`);
+  const response = await privateAxios.delete(API_PATHS.chat.room(roomId));
   return response.data;
 };

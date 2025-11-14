@@ -3,7 +3,6 @@
 import { LogIn } from "lucide-react";
 import Link from "next/link";
 
-import { useLogoutMutation } from "@/features/auth/mutations";
 import { useAuthStore } from "@/features/auth/store";
 import {
   Avatar,
@@ -20,7 +19,12 @@ import { Separator } from "@/shared/components/shadcn/separator";
 
 export default function UserPopover() {
   const user = useAuthStore((state) => state.user);
-  const { mutate: logout } = useLogoutMutation();
+  const clearAuth = useAuthStore((state) => state.clearAuth);
+
+  const handleLogout = () => {
+    clearAuth();
+    location.reload();
+  };
 
   if (!user) {
     return (
@@ -74,9 +78,7 @@ export default function UserPopover() {
           <Button
             variant="ghost"
             className="justify-start w-full h-auto px-3 py-2"
-            onClick={() => {
-              logout();
-            }}
+            onClick={handleLogout}
           >
             로그아웃
           </Button>

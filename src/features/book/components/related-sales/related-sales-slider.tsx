@@ -5,7 +5,7 @@ import { Swiper, SwiperSlide } from "swiper/react";
 import { Button } from "@/shared/components/shadcn/button";
 
 import { UsedBookSale } from "../../types";
-import { SaleCard } from "./sale-card";
+import { BookSaleCard } from "../common/book-sale-card";
 
 interface RelatedSalesSliderProps {
   sales: UsedBookSale[];
@@ -34,7 +34,7 @@ export const RelatedSalesSlider = ({
       >
         {sales.map((sale, index) => (
           <SwiperSlide key={sale.id} className="!w-[250px] py-8">
-            <SaleCard sale={sale} idx={index} />
+            <BookSaleCard sale={sale} idx={index} />
           </SwiperSlide>
         ))}
 
