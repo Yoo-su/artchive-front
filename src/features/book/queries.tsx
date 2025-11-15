@@ -81,8 +81,8 @@ export const useInfiniteBookSalesQuery = (params: SearchBookSalesParams) => {
     queryFn: ({ pageParam = 1 }) =>
       searchBookSales({ ...params, page: pageParam }),
     initialPageParam: 1,
-    getNextPageParam: (lastPage) => {
-      return lastPage.hasNextPage ? lastPage.page + 1 : undefined;
+    getNextPageParam: (lastPage, allPages) => {
+      return lastPage.hasNextPage ? allPages.length + 1 : undefined;
     },
   });
 };
