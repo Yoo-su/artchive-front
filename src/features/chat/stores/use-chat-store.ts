@@ -1,12 +1,12 @@
-import { QueryClient } from '@tanstack/react-query';
-import { io, Socket } from 'socket.io-client';
-import { create } from 'zustand';
+import { QueryClient } from "@tanstack/react-query";
+import { io, Socket } from "socket.io-client";
+import { create } from "zustand";
 
-import { useAuthStore } from '@/features/auth/store';
-import { QUERY_KEYS } from '@/shared/constants/query-keys';
+import { useAuthStore } from "@/features/auth/store";
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
-import { getMyChatRooms, leaveChatRoom } from '../apis';
-import { ChatMessage, ChatRoom, GetChatMessagesResponse } from '../types';
+import { getMyChatRooms, leaveChatRoom } from "../apis";
+import { ChatMessage, ChatRoom, GetChatMessagesResponse } from "../types";
 
 type InfiniteMessagesData = {
   pages: GetChatMessagesResponse[];
@@ -48,25 +48,28 @@ export const useChatStore = create<ChatState>((set, get) => ({
 
     const accessToken = useAuthStore.getState().accessToken;
     if (!accessToken) {
-      console.log('User is not authenticated. Cannot connect to chat.');
+      console.log("User is not authenticated. Cannot connect to chat.");
       return;
     }
 
     const newSocket = io(process.env.NEXT_PUBLIC_API_URL!, {
-      transports: ['websocket'],
+      transports: ["websocket", "polling"],
+      auth: {
+        token: accessToken, // auth 객체로 전달
+      },
       extraHeaders: {
-        Authorization: `Bearer ${accessToken}`,
+        Authorization: `Bearer ${accessToken}`, // 백업용
       },
     });
 
-    newSocket.on('connect', async () => {
-      console.log('Socket connected:', newSocket.id);
+    newSocket.on("connect", async () => {
+      console.log("Socket connected:", newSocket.id);
       try {
         const rooms = await getMyChatRooms();
         const roomIds = rooms.map((room) => room.id);
-        newSocket.emit('subscribeToAllRooms', roomIds);
+        newSocket.emit("subscribeToAllRooms", roomIds);
       } catch (error) {
-        console.error('Failed to subscribe to rooms:', error);
+        console.error("Failed to subscribe to rooms:", error);
       }
     });
 
