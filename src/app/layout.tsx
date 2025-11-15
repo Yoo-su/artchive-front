@@ -12,8 +12,9 @@ import type { Metadata } from "next";
 import { Nanum_Gothic } from "next/font/google";
 import localFont from "next/font/local";
 
-import { QueryProvider } from "@/shared/providers";
 import { ChatProvider } from "@/shared/providers/chat-provider";
+import { QueryProvider } from "@/shared/providers/query-provider";
+import { SocketProvider } from "@/shared/providers/socket-provider";
 import UserProvider from "@/shared/providers/user-provider";
 
 // SEO를 위한 기본 메타데이터 객체
@@ -76,7 +77,9 @@ export default async function Layout({
       <body style={{ fontFamily: "var(--font-pretendard)" }}>
         <QueryProvider>
           <UserProvider>
-            <ChatProvider>{children}</ChatProvider>
+            <SocketProvider>
+              <ChatProvider>{children}</ChatProvider>
+            </SocketProvider>
           </UserProvider>
 
           <Analytics />

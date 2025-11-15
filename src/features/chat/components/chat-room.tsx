@@ -15,9 +15,12 @@ import {
 } from "@/shared/components/shadcn/avatar";
 import { Button } from "@/shared/components/shadcn/button";
 import { Input } from "@/shared/components/shadcn/input";
+import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { useSocketContext } from "@/shared/providers/socket-provider";
 
+import { useInfiniteChatMessagesQuery, useMyChatRoomsQuery } from "../queries";
 import { useChatStore } from "../stores/use-chat-store";
-import { ChatMessage, ChatRoom as ChatRoomType } from "../types";
+import { ChatMessage } from "../types";
 
 const SystemMessageBubble = ({ content }: { content: string }) => (
   <div className="text-center text-xs text-gray-500 py-2">
@@ -61,46 +64,59 @@ const MessageBubble = ({
   );
 };
 
-interface ChatRoomProps {
-  room?: ChatRoomType;
-  messages: ChatMessage[];
-  isLoading: boolean;
-  sendMessage: (content: string) => void;
-  fetchPreviousPage: () => void;
-  hasPreviousPage?: boolean;
-  isFetchingPreviousPage: boolean;
-  typingNickname?: string;
-  emitStartTyping: () => void;
-  emitStopTyping: () => void;
-}
-
-export const ChatRoom = ({
-  room,
-  messages,
-  isLoading,
-  sendMessage,
-  fetchPreviousPage,
-  hasPreviousPage,
-  isFetchingPreviousPage,
-  typingNickname,
-  emitStartTyping,
-  emitStopTyping,
-}: ChatRoomProps) => {
-  const { closeChatRoom, leaveRoom, isRoomInactive } = useChatStore();
+export const ChatRoom = () => {
+  const { activeChatRoomId, closeChatRoom, typingUsers, isRoomInactive } =
+    useChatStore();
+  const { socket } = useSocketContext();
   const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
+
   const [newMessage, setNewMessage] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const messageContainerRef = useRef<HTMLDivElement>(null);
   const scrollRef = useRef<{ scrollHeight: number } | null>(null);
   const lastMessageIdRef = useRef<number | null>(null);
 
+  const { data: roomsData } = useMyChatRoomsQuery();
+  const {
+    data: messagesData,
+    fetchPreviousPage,
+    hasPreviousPage,
+    isFetchingPreviousPage,
+    isLoading: isMessagesLoading,
+  } = useInfiniteChatMessagesQuery(activeChatRoomId!);
+
+  const room = useMemo(
+    () => roomsData?.find((r) => r.id === activeChatRoomId),
+    [roomsData, activeChatRoomId]
+  );
+
+  const messages = useMemo(() => {
+    if (!messagesData) return [];
+    return messagesData.pages
+      .flatMap((page) => page.messages)
+      .sort(
+        (a, b) =>
+          new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+      );
+  }, [messagesData]);
+
+  const typingNickname = activeChatRoomId ? typingUsers[activeChatRoomId] : "";
+  const isInactive = isRoomInactive[room?.id ?? -1] || false;
+
+  const emitStopTyping = useMemo(
+    () => () => {
+      if (socket && activeChatRoomId) {
+        socket.emit("stopTyping", { roomId: activeChatRoomId });
+      }
+    },
+    [socket, activeChatRoomId]
+  );
+
   const debouncedStopTyping = useMemo(
     () => debounce(emitStopTyping, 1500),
     [emitStopTyping]
   );
-
-  const isInactive = isRoomInactive[room?.id ?? -1] || false;
 
   useEffect(() => {
     return () => {
@@ -125,7 +141,7 @@ export const ChatRoom = ({
     }
   }, [messages]);
 
-  if (isLoading || !room) {
+  if (isMessagesLoading || !room) {
     return (
       <div className="flex h-full w-full items-center justify-center">
         <Loader2 className="h-6 w-6 animate-spin text-gray-400" />
@@ -152,23 +168,54 @@ export const ChatRoom = ({
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setNewMessage(e.target.value);
-    emitStartTyping();
+    if (socket && activeChatRoomId) {
+      socket.emit("startTyping", { roomId: activeChatRoomId });
+    }
     debouncedStopTyping();
   };
 
   const handleSendMessage = (e: React.FormEvent) => {
     e.preventDefault();
-    if (newMessage.trim() === "") return;
-    sendMessage(newMessage);
+    if (!socket || !activeChatRoomId || !newMessage.trim()) return;
+
+    socket.emit(
+      "sendMessage",
+      { roomId: activeChatRoomId, content: newMessage },
+      (response: { status: string; error?: string }) => {
+        if (response.status !== "ok") {
+          console.error("Message failed to send:", response.error);
+          alert(`메시지 전송에 실패했습니다: ${response.error}`);
+        }
+      }
+    );
     setNewMessage("");
     debouncedStopTyping.cancel();
     emitStopTyping();
   };
 
   const handleLeaveRoom = () => {
-    if (window.confirm("정말로 이 채팅방을 나가시겠습니까?")) {
-      leaveRoom(queryClient);
+    if (
+      !socket ||
+      !activeChatRoomId ||
+      !window.confirm("정말로 이 채팅방을 나가시겠습니까?")
+    ) {
+      return;
     }
+
+    socket.emit(
+      "leaveRoom",
+      { roomId: activeChatRoomId },
+      (response: { status: string; error?: string }) => {
+        if (response.status === "ok") {
+          queryClient.invalidateQueries({
+            queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+          });
+          closeChatRoom();
+        } else {
+          alert(`채팅방을 나가는 데 실패했습니다: ${response.error}`);
+        }
+      }
+    );
   };
 
   return (
@@ -192,7 +239,7 @@ export const ChatRoom = ({
             />
           </div>
           <div className="overflow-hidden">
-            {/* <p className="font-semibold truncate">{opponent?.nickname}</p> */}
+            <p className="font-semibold truncate">{opponent?.nickname}</p>
             <div className="h-5">
               <AnimatePresence>
                 {typingNickname && (
