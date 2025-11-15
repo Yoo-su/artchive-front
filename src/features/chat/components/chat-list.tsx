@@ -1,21 +1,48 @@
 "use client";
 
 import { MessageSquareX } from "lucide-react";
+import { useEffect, useRef } from "react";
 
-import { ChatRoom } from "../types";
+import { useSocketContext } from "@/shared/providers/socket-provider";
+
+import { useMyChatRoomsQuery } from "../queries";
 import { ChatItem } from "./chat-item";
 import { ChatListSkeleton } from "./skeleton";
 
-interface ChatListProps {
-  rooms: ChatRoom[];
-  isLoading: boolean;
-}
-export const ChatList = ({ rooms, isLoading }: ChatListProps) => {
+export const ChatList = () => {
+  const { data: rooms, isLoading } = useMyChatRoomsQuery();
+  const { socket, isConnected } = useSocketContext();
+  const hasJoinedRooms = useRef(false);
+
+  useEffect(() => {
+    if (
+      socket &&
+      isConnected &&
+      rooms &&
+      rooms.length > 0 &&
+      !hasJoinedRooms.current
+    ) {
+      const roomIds = rooms.map((room) => room.id);
+      socket.emit(
+        "joinRooms",
+        roomIds,
+        (response: { status: string; joinedRooms: number[] }) => {
+          if (response.status === "ok") {
+            console.log("Successfully joined rooms:", response.joinedRooms);
+            hasJoinedRooms.current = true;
+          } else {
+            console.error("Failed to join rooms");
+          }
+        }
+      );
+    }
+  }, [socket, isConnected, rooms]);
+
   if (isLoading) {
     return <ChatListSkeleton />;
   }
 
-  if (rooms.length === 0) {
+  if (!rooms || rooms.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center h-full text-gray-400">
         <MessageSquareX size={48} />

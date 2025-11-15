@@ -5,7 +5,6 @@ import { format, isToday, isYesterday } from "date-fns";
 import { ko } from "date-fns/locale";
 import { motion } from "framer-motion";
 import { MessageSquareText } from "lucide-react";
-import { useState } from "react";
 
 import { useAuthStore } from "@/features/auth/store";
 import {
@@ -13,9 +12,7 @@ import {
   AvatarFallback,
   AvatarImage,
 } from "@/shared/components/shadcn/avatar";
-import { QUERY_KEYS } from "@/shared/constants/query-keys";
 
-import { markMessagesAsRead } from "../apis";
 import { useChatStore } from "../stores/use-chat-store";
 import { ChatRoom } from "../types";
 
@@ -30,35 +27,13 @@ export const ChatItem = ({ room }: { room: ChatRoom }) => {
   const { openChatRoom } = useChatStore();
   const currentUser = useAuthStore((state) => state.user);
   const queryClient = useQueryClient();
-  const [isOpening, setIsOpening] = useState(false);
 
   const opponent = room.participants.find(
     (p) => p.user.id !== currentUser?.id
   )?.user;
 
-  const handleOpenRoom = async () => {
-    if (isOpening) return;
-    setIsOpening(true);
-    try {
-      if ((room.unreadCount ?? 0) > 0) {
-        await markMessagesAsRead(room.id);
-        queryClient.setQueryData<ChatRoom[]>(
-          QUERY_KEYS.chatKeys.rooms.queryKey,
-          (oldData) => {
-            if (!oldData) return [];
-            return oldData.map((r) =>
-              r.id === room.id ? { ...r, unreadCount: 0 } : r
-            );
-          }
-        );
-      }
-      openChatRoom(room.id, queryClient);
-    } catch (error) {
-      console.error("Failed to open chat room:", error);
-      openChatRoom(room.id, queryClient);
-    } finally {
-      setIsOpening(false);
-    }
+  const handleOpenRoom = () => {
+    openChatRoom(room.id, queryClient);
   };
 
   return (

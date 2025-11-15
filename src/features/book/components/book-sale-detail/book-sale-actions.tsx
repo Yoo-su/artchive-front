@@ -9,7 +9,6 @@ import { useState } from "react";
 
 import { findOrCreateRoom } from "@/features/chat/apis";
 import { useChatStore } from "@/features/chat/stores/use-chat-store";
-import { ChatRoom } from "@/features/chat/types";
 import {
   Avatar,
   AvatarFallback,
@@ -24,6 +23,7 @@ import {
 } from "@/shared/components/shadcn/card";
 import { Separator } from "@/shared/components/shadcn/separator";
 import { QUERY_KEYS } from "@/shared/constants/query-keys";
+import { useSocketContext } from "@/shared/providers/socket-provider";
 import { formatPostDate } from "@/shared/utils/date";
 
 import { useDeleteBookSaleMutation } from "../../mutations";
@@ -37,7 +37,8 @@ interface BookSaleActionsProps {
 
 export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
   const [isCreatingChat, setIsCreatingChat] = useState(false);
-  const { openChatRoom, subscribeToRoom } = useChatStore();
+  const { openChatRoom } = useChatStore();
+  const { socket } = useSocketContext();
   const queryClient = useQueryClient();
   const { mutate: deleteSale, isPending: isDeleting } =
     useDeleteBookSaleMutation();
@@ -68,34 +69,20 @@ export const BookSaleActions = ({ sale, isOwner }: BookSaleActionsProps) => {
   const handleStartChat = async () => {
     setIsCreatingChat(true);
     try {
+      // 1. API를 통해 채팅방을 생성 또는 조회합니다.
       const newRoom = await findOrCreateRoom(sale.id);
 
-      // 새 채팅방을 구독합니다.
-      subscribeToRoom(newRoom.id);
+      // 2. 새로 생성된 채팅방에 소켓을 조인시킵니다.
+      if (socket) {
+        socket.emit("joinRooms", [newRoom.id]);
+      }
 
-      // 채팅방 목록 쿼리 데이터를 업데이트하여 새 채팅방을 추가합니다.
-      queryClient.setQueryData<ChatRoom[]>(
-        QUERY_KEYS.chatKeys.rooms.queryKey,
-        (oldRooms) => {
-          if (!oldRooms) return [newRoom];
-          // 이미 존재하는 방인지 확인합니다.
-          const isExisting = oldRooms.some((room) => room.id === newRoom.id);
-          if (isExisting) {
-            // 기존 방이 있다면, 활성 상태로 만들고 목록의 맨 위로 올립니다.
-            return oldRooms
-              .map((room) => (room.id === newRoom.id ? newRoom : room))
-              .sort(
-                (a, b) =>
-                  new Date(b.createdAt).getTime() -
-                  new Date(a.createdAt).getTime()
-              );
-          }
-          // 새 방이라면 목록의 맨 앞에 추가합니다.
-          return [newRoom, ...oldRooms];
-        }
-      );
+      // 3. 채팅방 목록 쿼리를 무효화하여 최신 목록을 다시 불러옵니다.
+      await queryClient.invalidateQueries({
+        queryKey: QUERY_KEYS.chatKeys.rooms.queryKey,
+      });
 
-      // 채팅방을 엽니다.
+      // 4. 채팅 위젯에서 해당 채팅방을 엽니다.
       openChatRoom(newRoom.id, queryClient);
     } catch (error) {
       console.error("Failed to start chat:", error);
