@@ -11,7 +11,12 @@ interface UesrProviderProps {
 }
 export default function UserProvider({ children }: UesrProviderProps) {
   const { setUser, accessToken } = useAuthStore();
+  const [isHydrated, setIsHydrated] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(true);
+
+  useEffect(() => {
+    setIsHydrated(true);
+  }, []);
 
   useEffect(() => {
     const fetchUserProfile = async () => {
@@ -29,9 +34,11 @@ export default function UserProvider({ children }: UesrProviderProps) {
       }
     };
 
-    fetchUserProfile();
-  }, [accessToken, setUser]);
+    if (isHydrated) {
+      fetchUserProfile();
+    }
+  }, [accessToken, setUser, isHydrated]);
 
-  if (isLoading) return <FullScreenLoader />;
+  if (isLoading || !isHydrated) return <FullScreenLoader />;
   return <>{children}</>;
 }

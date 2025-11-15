@@ -4,7 +4,6 @@ import axios, {
   InternalAxiosRequestConfig,
 } from "axios";
 
-import { logout } from "@/features/auth/apis";
 import { useAuthStore } from "@/features/auth/store";
 
 const baseURL = process.env.NEXT_PUBLIC_API_URL;
@@ -104,7 +103,7 @@ privateAxios.interceptors.response.use(
       } catch (refreshError) {
         processQueue(refreshError as AxiosError, null);
         useAuthStore.getState().clearAuth();
-        logout();
+        location.reload();
         return Promise.reject(refreshError);
       } finally {
         isRefreshing = false;
